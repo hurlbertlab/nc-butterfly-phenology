@@ -14,7 +14,7 @@ jan90<-raster(files[8])
 library(rgdal)
 counties=readOGR("C:/Users/lhamo/Documents/Biology/butterfly paper 2016/boundarydata","COUNTYBOUNDARYSHORELINE")
 
-#add province IDs beforehand, if you so desired
+#add province IDs beforehand, if so desired
 labels <-read.csv("C:/Users/lhamo/Documents/Biology/BIOL 692H/fixing.province.names.2.24.2016.csv")
 labels<- labels[ -c(1)]
 colnames(labels)<-c("NAME","province", "triangle")
