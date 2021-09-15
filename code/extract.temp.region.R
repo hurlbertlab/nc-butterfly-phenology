@@ -1,7 +1,6 @@
 #####LOADING SPATIAL DATA, CHECKING MAP PROJECTIONS
 
 ##x-values- temperature
-setwd("~/Biology/butterfly paper 2016/temp data/1990")
 files=list.files()
 library(raster)
 
@@ -12,6 +11,7 @@ jan90<-raster(files[8])
 
 #read in county boundary file
 library(rgdal)
+#edit navigation to reflect repository
 counties=readOGR("C:/Users/lhamo/Documents/Biology/butterfly paper 2016/boundarydata","COUNTYBOUNDARYSHORELINE")
 
 #add province IDs beforehand, if so desired
