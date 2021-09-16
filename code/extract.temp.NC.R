@@ -37,7 +37,7 @@ plot(triangle_geog, add=T)
 #2) Extract temperature using a static 4-month window (March-June)
 
 #set years 
-years = 1990:2016
+years = 1990:2018
 
 #for loop to read in all the files
 output = data.frame(county = character(),
@@ -46,7 +46,6 @@ output = data.frame(county = character(),
 
 #for loop extracts average temp from March-June
 for(y in years){
-  "C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data/1990/"
   filenames.march<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data/", y, "/PRISM_tmean_stable_4kmM2_", y, "03", "_bil.bil", sep="")
   filenames.april<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data/", y, "/PRISM_tmean_stable_4kmM2_", y, "04", "_bil.bil", sep="")
   filenames.may<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data/", y, "/PRISM_tmean_stable_4kmM2_", y, "05", "_bil.bil", sep="")
@@ -63,5 +62,6 @@ for(y in years){
 # The output dataframe has 3 columns: county, year, and mean temperature for that window
 
 #save output
-write.csv(output, file="C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/tempmean.4.months.triangle.static.2016.csv")
+write.csv(output, file="C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/tempmean.4.months.triangle.static.2018.csv")
 
+#question: difference between PRISM_tmean_stable_4kmM2_y and PRISM_tmean_stable_4kmM3? Recent 2017 and 2018 downloads are M3
