@@ -10,24 +10,19 @@ alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.
 
 #creating for loop (First I'll just try to get this to read the plots and put them in a pdf)
 species<-unique(alldat$species)
-pdf("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/julian.temp.4months.static.pdf",width=10, height=10)
-par(mfrow=c(3,2))
+pdf("julian.year.4months.static.pdf",width=10, height=8)
+par(mfrow=c(2,3))
 
 for (s in species) {
   df=alldat[alldat$species==s,]
-  lm.sub=lm(df$julian~df$temp,xlab="temperature", ylab="julian", main="test", group=species)
-  plot(df$julian~df$temp, xlab='temperature', ylab='Early Date (julian)')
-  abline(lm(df$julian~df$temp))
-  legend("topright", bty="n", legend=paste("R2-",format(summary(lm.sub)$r.squared, digits=4)))
+  lm.sub=lm(df$julian~df$year,xlab="year", ylab="julian", group=species)
+  plot(df$julian~df$year, xlab='year', ylab='Early Date (julian)', main=paste(s))
+  abline(lm(df$julian~df$year))
+  rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
+  pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
+  legend("topright", bty="n", legend=c(rsquared,pvalue))
 }
-
-#trying it outside the pdf framework. just to see
-for (s in species) {
-  df=alldat[alldat$species==s,]
-  lm.sub=lm(df$julian~df$temp,xlab="temperature", ylab="julian", main="test", group=species)
-  plot(df$julian~df$temp, xlab='temperature', ylab='Early Date (julian)')
-  abline(lm(df$julian~df$temp))
-}
+dev.off()
 
 #generate a dataframe of species,slope,r-squared and p-value
 output = data.frame(species = character(),
@@ -39,7 +34,7 @@ species<-unique(alldat$species)
 
 for (s in species) {
   df<-alldat[alldat$species==s,]
-  lm.sub<-lm(df$julian~df$year)
+  lm.sub<-lm(df$julian~df$temp)
   slope<-summary(lm.sub)$coefficients[2,1] 
   rsquared<-summary(lm.sub)$r.squared
   pvalue<-summary(lm.sub)$coefficients[2,4]
@@ -79,14 +74,12 @@ library(ggplot2)
     
 #triangle
     #year
-      #?/44 negative, 17 significant, mean=0.3836889
+      #12/44 negative, 9 significant, mean=0.6575005
     #temp
-      #34/44 negative, 8 significant, mean=-1.938835
-    #only one species overlaps in being significant for both 
-      #great spangled frit (speyeria cybele)
-    #in a simple regression, there is a significant positive relationship b/w temp and year. (i.e. increase in temp)
-      #p<0.0001
+      #34/44 negative, 8 significant, mean=-4.535171 
+    #in a simple regression, there is no significant correlation b/w
+      #year and temp
       
 
 #binomial test to test whether number of negative slopes is greater 
-binom.test(, 56, 0.5, alternative="greater")
+binom.test(12, 44, 0.5, alternative="greater")
