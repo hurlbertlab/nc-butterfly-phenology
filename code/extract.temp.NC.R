@@ -37,7 +37,7 @@ plot(triangle_geog, add=T)
 #2) Extract temperature using a static 4-month window (March-June)
 
 #set years 
-years = 1990:2018
+years = 1990:2020
 
 #for loop to read in all the files
 output = data.frame(county = character(),
@@ -51,7 +51,7 @@ for(y in years){
   filenames.may<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data 2020/", y, "/PRISM_tmean_stable_4kmM3_", y, "05", "_bil.bil", sep="")
   filenames.june<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data 2020/", y, "/PRISM_tmean_stable_4kmM3_", y, "06", "_bil.bil", sep="")
   filenames1 = c(filenames.march, filenames.april, filenames.may, filenames.june)
-  filenames <- filenames1[ !grepl("C:/Users/lhamo/Documentsgit/nc-butterfly-phenology/data/temp data 2020/", y, "/PRISM_tmean_stable_4kmM3_", y, "_bil.bil", filenames1) ]
+  filenames <- filenames1[ !grepl("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data 2020/", y, "/PRISM_tmean_stable_4kmM3_", y, "_bil.bil", filenames1) ]
   temp_allmonths<-stack(filenames)
   tmean = calc(temp_allmonths, mean)
   tempmean = extract(tmean, triangle_geog, fun=mean)

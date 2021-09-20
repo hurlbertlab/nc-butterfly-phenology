@@ -2,7 +2,7 @@
 #and merging with temperature data generated from extract.temp.NC.R
 
 #load approximation data
-alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/bnc_thru2018.csv")
+alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/bnc_thru2020.csv")
 
 #add add labels to designate triangle observations
 labels<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/triangle_labels.csv")
@@ -47,14 +47,14 @@ traits<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/speci
 #merge traits list with approximation
 dat4<-merge(traits, dat3, by.x=c("Cname"), by.y=c("Cname"), all.x = F, all.y = F)
 
-#Changing column names to match the 2nd summary dataframe
+#subset column names to match the 2nd summary dataframe
 alldat2<-dat4[c("county", "species", "number", "year", "jd")]
 
 library(dplyr)
 
 # First need to create a vector of dates for individuals
 species<-unique(alldat2$species)
-year=1990:2018
+year=1990:2020
 
 #create an empty output for the for loop to put values into
 output = data.frame(species=character(),
@@ -88,7 +88,7 @@ output2 <- output[!is.infinite(output$julian),] #note: many many Infs where ther
 write.csv(output2,file="C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/10.percent.earlydate.triangle.csv")
 
 #load temperature data
-tempdat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/tempmean.4.months.triangle.static.2016.csv")
+tempdat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/tempmean.4.months.triangle.static.2020.csv")
 
 #average temperatures across all three triangle counties for each year (if desired)
 tempdat2<-aggregate(temp~year, tempdat, FUN=mean)
