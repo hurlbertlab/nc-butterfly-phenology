@@ -4,11 +4,11 @@
 #1) load spatial data, check map projections
 
 ##x-values- temperature
-files=list.files("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data/1990/")
+files=list.files("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data 2020/1990/")
 library(raster)
 
 # Read in single raster layer from january
-files=list.files("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data/1990/", full.names=TRUE)
+files=list.files("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data 2020/1990/", full.names=TRUE)
 numfiles=length(files)
 jan90<-raster(files[8])
 
@@ -46,12 +46,12 @@ output = data.frame(county = character(),
 
 #for loop extracts average temp from March-June
 for(y in years){
-  filenames.march<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data/", y, "/PRISM_tmean_stable_4kmM2_", y, "03", "_bil.bil", sep="")
-  filenames.april<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data/", y, "/PRISM_tmean_stable_4kmM2_", y, "04", "_bil.bil", sep="")
-  filenames.may<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data/", y, "/PRISM_tmean_stable_4kmM2_", y, "05", "_bil.bil", sep="")
-  filenames.june<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data/", y, "/PRISM_tmean_stable_4kmM2_", y, "06", "_bil.bil", sep="")
+  filenames.march<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data 2020/", y, "/PRISM_tmean_stable_4kmM3_", y, "03", "_bil.bil", sep="")
+  filenames.april<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data 2020/", y, "/PRISM_tmean_stable_4kmM3_", y, "04", "_bil.bil", sep="")
+  filenames.may<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data 2020/", y, "/PRISM_tmean_stable_4kmM3_", y, "05", "_bil.bil", sep="")
+  filenames.june<- paste("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp data 2020/", y, "/PRISM_tmean_stable_4kmM3_", y, "06", "_bil.bil", sep="")
   filenames1 = c(filenames.march, filenames.april, filenames.may, filenames.june)
-  filenames <- filenames1[ !grepl("C:/Users/lhamo/Documentsgit/nc-butterfly-phenology/data/temp data/", y, "/PRISM_tmean_stable_4kmM2_", y, "_bil.bil", filenames1) ]
+  filenames <- filenames1[ !grepl("C:/Users/lhamo/Documentsgit/nc-butterfly-phenology/data/temp data 2020/", y, "/PRISM_tmean_stable_4kmM3_", y, "_bil.bil", filenames1) ]
   temp_allmonths<-stack(filenames)
   tmean = calc(temp_allmonths, mean)
   tempmean = extract(tmean, triangle_geog, fun=mean)
@@ -62,6 +62,5 @@ for(y in years){
 # The output dataframe has 3 columns: county, year, and mean temperature for that window
 
 #save output
-write.csv(output, file="C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/tempmean.4.months.triangle.static.2018.csv")
+write.csv(output, file="C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/tempmean.4.months.triangle.static.2020.csv")
 
-#question: difference between PRISM_tmean_stable_4kmM2_y and PRISM_tmean_stable_4kmM3? Recent 2017 and 2018 downloads are M3
