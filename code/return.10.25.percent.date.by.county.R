@@ -100,3 +100,35 @@ tempjulian<-na.omit(tempjulian)
 #create a csv that includes temperature and julian dates
 write.csv(tempjulian, "C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.triangle.static.4.months.csv")
 
+#-------------------------------------------------------------
+#to visualize differences in sampling effort between years
+#make a for loop that generates the following:
+#for EACH species, for EACH year, a scatterplot (or bar graph?) 
+#of number of observations vs. julian date
+
+#first, load and prep the data
+#in this case, we're using alldat2
+
+#aggregate number by species, year, and julian date
+alldat3<-aggregate(number ~ species+year+jd, data = alldat2, FUN = sum)
+
+# Need to create a vector of species and dates for individuals
+species<-unique(alldat2$species)
+year<-1990:2020
+
+#generate empty pdf to fill 
+pdf("numbersightings.peryear.perspecies.pdf",width=10, height=8)
+par(mfrow=c(2,3))
+
+#for loop that returns number vs. julian date per year per species
+for (s in species) {
+  year<-unique(alldat3$year)
+  for (y in year){
+    df=subset(alldat3, year==y)
+    plot(df$number~df$jd, xlab='julian', ylab='number of observations', main=paste(s,y))
+  }
+}
+dev.off()
+
+
+
