@@ -123,7 +123,7 @@ par(mfrow=c(2,3))
 #for loop that returns number vs. julian date per year per species
 for (s in species) {
   df1<-subset(alldat3, species==s)
-  year<-unique(df1$year)
+  year<-sort(unique(df1$year))
   for (y in year){
     df2<-subset(df1, year==y & species==s)
     plot(df2$number~df2$jd, xlab='julian', ylab='number of observations', main=paste(s,y))
