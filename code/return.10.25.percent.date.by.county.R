@@ -37,6 +37,7 @@ speciessummary4 <- speciessummary3[ which(speciessummary3$freq >= 10), ]
 speciessummary4$minyear="Y"
 #subset speciessummary with these species
 trianglespp <- speciessummary4[c(1,3)] 
+colnames(trianglespp)<-c("Cname", "minyear") #name columns
 
 #merge approximation with designation of min data ("minyear") to subset species
 dat3<-merge(dat2,trianglespp, by.x=c("Cname"),by.y=c("Cname"), all.x = F, all.y = T)
@@ -114,7 +115,6 @@ alldat3<-aggregate(number ~ species+year+jd, data = alldat2, FUN = sum)
 
 # Need to create a vector of species and dates for individuals
 species<-unique(alldat2$species)
-year<-1990:2020
 
 #generate empty pdf to fill 
 pdf("numbersightings.peryear.perspecies.pdf",width=10, height=8)
@@ -122,13 +122,19 @@ par(mfrow=c(2,3))
 
 #for loop that returns number vs. julian date per year per species
 for (s in species) {
-  year<-unique(alldat3$year)
+  df1<-subset(alldat3, species==s)
+  year<-unique(df1$year)
   for (y in year){
-    df=subset(alldat3, year==y)
-    plot(df$number~df$jd, xlab='julian', ylab='number of observations', main=paste(s,y))
+    df2<-subset(df1, year==y & species==s)
+    plot(df2$number~df2$jd, xlab='julian', ylab='number of observations', main=paste(s,y))
   }
 }
 dev.off()
 
+
+#it has come out weird - let's look at one species/year
+df <- alldat3[ which(alldat3$species=='Libytheana carinenta'
+                         & alldat3$year==2006), ]
+plot(df$number~df$jd, xlab='julian', ylab='number of observations')
 
 
