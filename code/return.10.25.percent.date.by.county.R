@@ -37,10 +37,10 @@ dat3$abundance <- 1
 
 #select species to analyze. skip this if you want to analyze all species
 #summarize number of years of data per species
-speciessummary<-aggregate(x = dat2$number, by = list(dat2$Cname, dat2$year), FUN = sum)
-colnames(speciessummary)<-c("Cname", "year", "number") #name columns
+speciessummary<-aggregate(x = dat3$number, by = list(dat3$Cname, dat3$year), FUN = sum)
+colnames(speciessummary)<-c("Cname", "year", "abundance") #name columns
 #subset species/year pairs with a minimum of 30 observations
-speciessummary2 <- speciessummary[ which(speciessummary$number >= 30), ]
+speciessummary2 <- speciessummary[ which(speciessummary$abundance >= 30), ]
 #summarize further by counting number of available years for each species
 library(plyr)
 speciessummary3<-count(speciessummary2$Cname)
@@ -52,7 +52,7 @@ speciessummary4$minyear="Y"
 trianglespp <- speciessummary4[c(1,3)] 
 colnames(trianglespp)<-c("Cname", "minyear") #name columns
 #merge approximation with designation of min data ("minyear") to subset species
-dat3<-merge(dat2,trianglespp, by.x=c("Cname"),by.y=c("Cname"), all.x = F, all.y = T)
+dat4<-merge(dat3,trianglespp, by.x=c("Cname"),by.y=c("Cname"), all.x = F, all.y = T)
 
 #load species trait data (includes scientific names)
 traits<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/species traits list.csv")
@@ -63,16 +63,22 @@ dat4<-merge(traits, dat3, by.x=c("Cname"), by.y=c("Cname"), all.x = F, all.y = F
 #subset column names to match the 2nd summary dataframe
 alldat2<-dat4[c("species", "abundance", "number", "year", "jd")]
 
+#filter out species that have less than 10 "good" years"
 library(dplyr)
 
+goodspeciesyears <- alldat2 %>% 
+  count(species, year) %>%
+  right_join(alldat2 , by = c("species", "year")) %>%
+  filter(n >= 10)
+
 # First need to create a vector of dates for individuals
-species<-unique(alldat2$species)
+species<-unique(goodspeciesyears$species)
 year=1990:2020
 
 #create an empty output for the for loop to put values into
 output = data.frame(species=character(),
                     year=integer(),
-                    julian=numeric())
+                    jd=numeric())
 #-------------------------------------------------------
 
 # Pulling out date associated with first 10 % individuals
@@ -91,15 +97,18 @@ dateXpct.ind = function(data, pct) {
 #for loop to perform this for each species/year 
 for (s in species){
     for (y in year){
-      b=subset(alldat2, year==y & species==s)
+      b=subset(goodspeciesyears, year==y & species==s)
       mindate<-dateXpct.ind(b,0.10)
-      datoutput = data.frame(species = s, year = y, julian=mindate)
+      datoutput = data.frame(species = s, year = y, jd=mindate)
       output=rbind(output,datoutput)
   }
 }
 
-output2 <- output[!is.infinite(output$julian),] #note: many many Infs where there were not enough data
+output2 <- output[!is.infinite(output$jd),] #note: many many Infs where there were not enough data
 write.csv(output2,file="C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/10.percent.earlydate.uniquedate.triangle.csv")
+
+########################################################
+#load and merge in temperature data
 
 #load temperature data
 tempdat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/tempmean.4.months.triangle.static.2020.csv")
@@ -117,7 +126,7 @@ write.csv(tempjulian, "C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/
 #-------------------------------------------------------------
 #to visualize differences in sampling effort between years
 #make a for loop that generates the following:
-#for EACH species, for EACH year, a scatterplot (or bar graph?) 
+#for EACH species, for EACH year, a scatterplot  
 #of number of observations vs. julian date
 
 #first, load and prep the data
@@ -125,13 +134,12 @@ write.csv(tempjulian, "C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/
 
 #aggregate number or abundance by species, year, and julian date
 alldat3<-aggregate(abundance ~ species+year+jd, data = alldat2, FUN = sum)
-alldat3<-aggregate(number ~ species+year+jd, data = alldat2, FUN = sum)
 
 #merge calculated earlydate into alldat3
 #this will allow us to represent it on our graphs using an abline
 #first create a unique species.year column in alldat3 and tempjulian
 alldat3$speciesyear <- do.call(paste, c(alldat3[1:2], sep = ""))  # Apply do.call & paste
-  col_order <- c("species", "year","julian","temp") #reorder columns
+  col_order <- c("species", "year","jd","temp") #reorder columns
   tempjulian <- tempjulian[, col_order]
 tempjulian$speciesyear <- do.call(paste, c(tempjulian[1:2], sep = ""))  # Apply do.call & paste
 #rename columns to indicate which one is earlydate
@@ -140,7 +148,7 @@ colnames(tempjulian)<-c("species", "year", "earlydate", "temp", "speciesyear") #
 alldat4<-merge(alldat3,tempjulian, by.x=c("speciesyear"),by.y=c("speciesyear"), all.x = F, all.y = F)
   #rename columns of merged dat
   colnames(alldat4)<-c("speciesyear", "species", "year", "jd", "abundance",
-                          "speciesyar", "species.y", "year.y", "earlydate", "temp")
+                         "species.y", "year.y", "earlydate", "temp")
   alldat4<-alldat4[c("speciesyear", "species", "year", "jd", "abundance","earlydate", "temp")]   #subset desired columns
 
 # Need to create a vector of species and dates for individuals
@@ -156,11 +164,30 @@ for (s in species) {
   year<-sort(unique(df1$year))
   for (y in year){
     df2<-subset(df1, year==y & species==s)
-    plot(df2$abundance~df2$jd, xlab='julian', ylab='number of observations', main=paste(s,y))
+    plot(df2$abundance~df2$jd, xlab='julian', ylab='number of observations', main=paste(s,y), color = colors[df2$abundance])
     abline(v=df2$earlydate,col="red",lwd=2)
   }
 }
 dev.off()
+
+#try with ggplot instead to scale points:
+for (s in species) {
+  df1<-subset(alldat4, species==s)
+  year<-sort(unique(df1$year))
+  for (y in year){
+    df2<-subset(df1, year==y & species==s)
+    print(ggplot(df2, aes(x = jd, y = abundance)) +
+            geom_point(aes(size=abundance))+
+            labs(title = paste(s,y),
+                 x="julian", y = "abundance")+
+            geom_vline(xintercept = df2$earlydate, color="red")+
+            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                  panel.background = element_blank(), axis.line = element_line(colour = "black")))
+  }
+}
+dev.off()
+
+#cex to mess with the color or symbol size by number of observations
 
 
 
