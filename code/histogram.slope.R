@@ -6,6 +6,7 @@ library(plyr)
 #triangle
 alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.triangle.static.4.months.csv")
 alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.csv")
+alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.filtered.csv")
 
 ##############################################################################
 

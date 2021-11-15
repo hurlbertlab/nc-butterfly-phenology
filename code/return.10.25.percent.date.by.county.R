@@ -35,7 +35,7 @@ colnames(dat3)<-c("Cname", "observer", "jd", "year", "number") #rename columns
 #since we've already changed zeros to 1, this is every number
 dat3$abundance <- 1
 
-#select species to analyze. skip this if you want to analyze all species
+#select species to analyze. skip this if needed
 #summarize number of years of data per species
 speciessummary<-aggregate(x = dat3$number, by = list(dat3$Cname, dat3$year), FUN = sum)
 colnames(speciessummary)<-c("Cname", "year", "abundance") #name columns
@@ -63,7 +63,7 @@ dat4<-merge(traits, dat3, by.x=c("Cname"), by.y=c("Cname"), all.x = F, all.y = F
 #subset column names to match the 2nd summary dataframe
 alldat2<-dat4[c("species", "abundance", "number", "year", "jd")]
 
-#filter out species that have less than 10 "good" years"
+#filter out years that have less than 10 unique dates
 library(dplyr)
 
 goodspeciesyears <- alldat2 %>% 
@@ -121,7 +121,7 @@ tempjulian = merge(tempdat2, output2, by.x = c('year'), by.y =c('year'), all.x =
 tempjulian<-na.omit(tempjulian)
 
 #create a csv that includes temperature and julian dates
-write.csv(tempjulian, "C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.csv")
+write.csv(tempjulian, "C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.filtered.csv")
 
 #-------------------------------------------------------------
 #to visualize differences in sampling effort between years
@@ -133,7 +133,7 @@ write.csv(tempjulian, "C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/
 #in this case, we're using alldat2
 
 #aggregate number or abundance by species, year, and julian date
-alldat3<-aggregate(abundance ~ species+year+jd, data = alldat2, FUN = sum)
+alldat3<-aggregate(abundance ~ species+year+jd, data = goodspeciesyears, FUN = sum)
 
 #merge calculated earlydate into alldat3
 #this will allow us to represent it on our graphs using an abline
@@ -155,7 +155,7 @@ alldat4<-merge(alldat3,tempjulian, by.x=c("speciesyear"),by.y=c("speciesyear"), 
 species<-unique(alldat4$species)
 
 #generate empty pdf to fill 
-pdf("numbersightings.peryear.perspecies.uniquedate.pdf",width=10, height=8)
+pdf("numbersightings.peryear.perspecies.uniquedate.pdf",width=5, height=4)
 par(mfrow=c(2,3))
 
 #for loop that returns number vs. julian date per year per species
@@ -190,6 +190,8 @@ dev.off()
 #cex to mess with the color or symbol size by number of observations
 
 
-
-
+#this is me checking that each species has at least 10 "good" years (at least 10 distinct dates)
+speciessummary<-aggregate(x = alldat4$abundance, by = list(alldat4$speciesyear), FUN = sum)
+#subset species/year pairs with a minimum of 30 observations
+speciessummary2 <- speciessummary[ which(speciessummary$x >= 10), ]
 
