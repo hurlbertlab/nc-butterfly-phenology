@@ -155,8 +155,9 @@ alldat4<-merge(alldat3,tempjulian, by.x=c("speciesyear"),by.y=c("speciesyear"), 
 species<-unique(alldat4$species)
 
 #generate empty pdf to fill 
-pdf("numbersightings.peryear.perspecies.uniquedate.pdf",width=5, height=4)
-par(mfrow=c(2,3))
+pdf("numbersightings.peryear.perspecies.uniquedate.pdf",width=10, height=8)
+par(mfrow=c(3,5), mar=c(3,1,3,1), oma=c(4,4,3,0))
+
 
 #for loop that returns number vs. julian date per year per species
 for (s in species) {
@@ -164,8 +165,22 @@ for (s in species) {
   year<-sort(unique(df1$year))
   for (y in year){
     df2<-subset(df1, year==y & species==s)
-    plot(df2$abundance~df2$jd, xlab='julian', ylab='number of observations', main=paste(s,y), color = colors[df2$abundance])
+    plot(df2$jd,df2$abundance, xlab='', ylab='', cex=df2$abundance, pch=16,
+         xlim=c(1,365), yaxt='n', cex.axis=1)
+    legend("topleft", legend=y, bty='n')
     abline(v=df2$earlydate,col="red",lwd=2)
+    
+    if (y == year[1] | y == year[16])
+    {
+      mtext(s,3, outer=TRUE)
+      mtext("julian day", 1, outer=TRUE)
+      mtext("abundance", 2, outer=TRUE)
+    }
+    
+    if (y == year[length(year)])
+    {
+      par(mfrow=c(3,5))
+    }
   }
 }
 dev.off()
