@@ -35,25 +35,6 @@ colnames(dat3)<-c("Cname", "observer", "jd", "year", "number") #rename columns
 #since we've already changed zeros to 1, this is every number
 dat3$abundance <- 1
 
-#select species to analyze. skip this if needed
-#summarize number of years of data per species
-speciessummary<-aggregate(x = dat3$number, by = list(dat3$Cname, dat3$year), FUN = sum)
-colnames(speciessummary)<-c("Cname", "year", "abundance") #name columns
-#subset species/year pairs with a minimum of 30 observations
-speciessummary2 <- speciessummary[ which(speciessummary$abundance >= 30), ]
-#summarize further by counting number of available years for each species
-library(plyr)
-speciessummary3<-count(speciessummary2$Cname)
-colnames(speciessummary3)<-c("Cname", "freq") #name columns
-#select species for which there are 10 or more years of data
-speciessummary4 <- speciessummary3[ which(speciessummary3$freq >= 10), ]
-speciessummary4$minyear="Y"
-#subset speciessummary with these species
-trianglespp <- speciessummary4[c(1,3)] 
-colnames(trianglespp)<-c("Cname", "minyear") #name columns
-#merge approximation with designation of min data ("minyear") to subset species
-dat4<-merge(dat3,trianglespp, by.x=c("Cname"),by.y=c("Cname"), all.x = F, all.y = T)
-
 #load species trait data (includes scientific names)
 traits<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/species traits list.csv")
 
@@ -71,6 +52,8 @@ goodspeciesyears <- alldat2 %>%
   right_join(alldat2 , by = c("species", "year")) %>%
   filter(n >= 10)
 
+#-------------------------------------------------------
+
 # First need to create a vector of dates for individuals
 species<-unique(goodspeciesyears$species)
 year=1990:2020
@@ -79,7 +62,6 @@ year=1990:2020
 output = data.frame(species=character(),
                     year=integer(),
                     jd=numeric())
-#-------------------------------------------------------
 
 # Pulling out date associated with first 10 % individuals
 
@@ -184,25 +166,6 @@ for (s in species) {
   }
 }
 dev.off()
-
-#try with ggplot instead to scale points:
-for (s in species) {
-  df1<-subset(alldat4, species==s)
-  year<-sort(unique(df1$year))
-  for (y in year){
-    df2<-subset(df1, year==y & species==s)
-    print(ggplot(df2, aes(x = jd, y = abundance)) +
-            geom_point(aes(size=abundance))+
-            labs(title = paste(s,y),
-                 x="julian", y = "abundance")+
-            geom_vline(xintercept = df2$earlydate, color="red")+
-            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                  panel.background = element_blank(), axis.line = element_line(colour = "black")))
-  }
-}
-dev.off()
-
-#cex to mess with the color or symbol size by number of observations
 
 
 #this is me checking that each species has at least 10 "good" years (at least 10 distinct dates)
