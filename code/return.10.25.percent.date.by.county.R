@@ -133,12 +133,21 @@ alldat4<-merge(alldat3,tempjulian, by.x=c("speciesyear"),by.y=c("speciesyear"), 
                          "species.y", "year.y", "earlydate", "temp")
   alldat4<-alldat4[c("speciesyear", "species", "year", "jd", "abundance","earlydate", "temp")]   #subset desired columns
 
+#need to omit species that have fewer than 10 years of data
+  uniquespeciesyears<-unique(alldat4[c("species", "year")])  
+  tt <- table(uniquespeciesyears$species)
+alldat5 <- alldat4[alldat4$species %in% names(tt[tt > 9]), ]
+  
+uniquespeciesyears2<-unique(alldat5[c("species", "year")])  
+tt2 <- table(uniquespeciesyears2$species)
+
 # Need to create a vector of species and dates for individuals
 species<-unique(alldat4$species)
+species<-unique(alldat5$species)
 
 #generate empty pdf to fill 
 pdf("numbersightings.peryear.perspecies.uniquedate.pdf",width=10, height=8)
-par(mfrow=c(3,5), mar=c(3,1,3,1), oma=c(4,4,3,0))
+par(mfrow=c(3,5), mar=c(2,1,2,1), oma=c(4,4,3,0))
 
 
 #for loop that returns number vs. julian date per year per species
@@ -152,7 +161,11 @@ for (s in species) {
     legend("topleft", legend=y, bty='n')
     abline(v=df2$earlydate,col="red",lwd=2)
     
-    if (y == year[1] | y == year[16])
+    if(length(year) > 15)
+      {
+      labels = ifelse(y == year[16], TRUE, FALSE) 
+    }
+    if(y == year[1] | labels) 
     {
       mtext(s,3, outer=TRUE)
       mtext("julian day", 1, outer=TRUE)
