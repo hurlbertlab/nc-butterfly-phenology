@@ -4,8 +4,6 @@ library(plyr)
 
 #load temp/julian data. Any fulldat file may be substituted
 #triangle
-alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.triangle.static.4.months.csv")
-alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.csv")
 alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.filtered.csv")
 
 ##############################################################################
@@ -18,7 +16,7 @@ par(mfrow=c(2,3))
 for (s in species) {
   df=alldat[alldat$species==s,]
   lm.sub=lm(df$jd~df$year,xlab="year", ylab="julian", group=species)
-  plot(df$jd~df$year, xlab='year', ylab='Early Date (julian)', main=paste(s))
+  plot(df$jd~df$temp, xlab='year', ylab='Early Date (julian)', main=paste(s))
   abline(lm(df$jd~df$year))
   rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
   pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)

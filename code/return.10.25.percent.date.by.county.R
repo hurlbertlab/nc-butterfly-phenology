@@ -45,6 +45,12 @@ dat3<-dat3 %>%
   filter(is.na(outlier))%>% #subset non-outlier years
   select("species", "abundance", "number", "year", "jd") 
 
+#Monarch is migratory, while ocola and red admiral are partly migratory
+#remove those here, if desired
+dat3<-dat3[dat3$species != "Danaus plexippus", ] 
+dat3<-dat3[dat3$species != "Panoquina ocola", ]   
+dat3<-dat3[dat3$species != "Vanessa atalanta", ]   
+
 #filter out years that have less than 10 unique dates
 goodspeciesyears <- dat3 %>% 
   count(species, year) %>%
@@ -85,7 +91,7 @@ for (s in species){
   }
 }
 
-output2 <- output[!is.infinite(output$jd),] #note: many many Infs where there were not enough data
+output2 <- output[!is.infinite(output$jd),] #note:many Infs where there were not enough data
 write.csv(output2,file="C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/10.percent.earlydate.uniquedate.triangle.csv")
 
 ########################################################
