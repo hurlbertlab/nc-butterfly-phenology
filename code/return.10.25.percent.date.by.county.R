@@ -1,55 +1,54 @@
-#Finding the 10% and our 25% flight date for each species for each year
+#Finding the 10% flight date for each species for each year
 #and merging with temperature data generated from extract.temp.NC.R
+
+library(dplyr)
+library(tidyr)
+library(readxl)
 
 #load approximation data
 alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/bnc_thru2020.csv")
 
-#add add labels to designate triangle observations
+#add labels to designate triangle observations
 labels<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/triangle_labels.csv")
 
-#subset labels with lowercase county format
-labels<-labels[c("county_lc","triangle")]
-
-#rename label columns 
-colnames(labels)<-c("county", "triangle")
+labels<-labels %>%
+  select(county_lc, triangle) %>% #subset labels with lowercase county format
+  rename(county = county_lc) #rename columns
 
 #merge labels with approximation
 dat<-merge(alldat,labels, by.x=c("county"),by.y=c("county"), all.x = F, all.y = T)
 
-#subset data after 1990
-dat <-subset(dat, year > 1989)
-
-#subset triangle observations
-dat2 <- subset(dat, triangle == "Y")
-
-#where number=0, change to "1"
-dat2$number[dat2$number == 0] <- 1
-
-#aggregate numbers by observer, species, year, and julian day
-#(i.e. if an observer went out on the same day and counted the same spp
-#it's counted as a single line of observation)
-dat3<-aggregate(x = dat2$number, by = list(dat2$Cname, dat2$observer, dat2$jd, dat2$year), FUN = sum)
-colnames(dat3)<-c("Cname", "observer", "jd", "year", "number") #rename columns
+dat <- dat %>% 
+  filter(year > 1989, triangle == "Y") %>% #subset years after 1989 and triangle data
+  mutate(number = replace(number, number == 0, 1)) %>% #where number=0, change to "1"
+  group_by(Cname, observer, jd, year) %>%
+  summarise(number = sum(number)) #aggregate by Cname, observer, jd, year
 
 #create a column where any number >/= 1 is listed as "1"
 #since we've already changed zeros to 1, this is every number
-dat3$abundance <- 1
+dat$abundance <- 1
 
 #load species trait data (includes scientific names)
 traits<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/species traits list.csv")
 
 #merge traits list with approximation
-dat4<-merge(traits, dat3, by.x=c("Cname"), by.y=c("Cname"), all.x = F, all.y = F)
+dat2<-merge(traits, dat, by.x=c("Cname"), by.y=c("Cname"), all.x = F, all.y = F)
+
+#load species with outlier years
+outlierdat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/earlydate_outliers.csv")
+
+#merge dat with outlier years
+dat3<-merge(dat2, outlierdat, by.x=c("species", "year"), by.y=c("species", "year"), all.x = T, all.y = F)
 
 #subset column names to match the 2nd summary dataframe
-alldat2<-dat4[c("species", "abundance", "number", "year", "jd")]
+dat3<-dat3 %>%
+  filter(is.na(outlier))%>% #subset non-outlier years
+  select("species", "abundance", "number", "year", "jd") 
 
 #filter out years that have less than 10 unique dates
-library(dplyr)
-
-goodspeciesyears <- alldat2 %>% 
+goodspeciesyears <- dat3 %>% 
   count(species, year) %>%
-  right_join(alldat2 , by = c("species", "year")) %>%
+  right_join(dat3, by = c("species", "year")) %>%
   filter(n >= 10)
 
 #-------------------------------------------------------
