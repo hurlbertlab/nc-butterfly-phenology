@@ -1,9 +1,9 @@
 #load early date vs. temp and year data
 library(plyr)
-tempdat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.filtered.csv")
+tempdat<-read.csv("data/temp.earlydate.uniquedate.triangle.static.4.months.filtered.csv")
 
 #add species traits in
-variables<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/species traits list.csv")
+variables<-read.csv("data/species traits list.csv")
 dat<-merge(variables,tempdat, by.x=c("species"),by.y=c('species'), all.x = T, all.y = T)
 
 #setting voltinism as a factor
