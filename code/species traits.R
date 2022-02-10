@@ -1,36 +1,35 @@
-#merging the full dataset and the calculated earlydate/temp values (without province for now)
-setwd("~/Documents/Biology/butterfly paper 2016")
+#load early date vs. temp and year data
 library(plyr)
-tempdat<-read.csv("C:/Users/lhamo/Documents/Biology/butterfly paper 2016/data/fulldat.8months.NC.2016.csv")
-#adjusted
-tempdat<-read.csv("C:/Users/lhamo/Documents/Biology/butterfly paper 2016/data/fulldat.8months.NC.adjusted.2016.csv") #adjusted
-#subsetted
-tempdat<-subset(tempdat,species=="Nymphalis antiopa")
-tempdat<-na.omit(tempdat)
+tempdat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.filtered.csv")
 
-#merge 2: adding the variables in 
-variables<-read.csv("C:/Users/lhamo/Documents/Biology/butterfly paper 2016/data/species list 2017.csv")
-drop<-c("Cname","county","observer","number","comments","month", "day","dateCalc","province","coid","julian","voltinismnotes","dietnotes")
-drop2<-which(names(variables) %in% drop)
-variables1<-variables[,-drop2]
-variables2<- unique(variables1[,1:6])
-dat<-merge(variables2,tempdat, by.x=c("species"),by.y=c('species'), all.x = T, all.y = T)
+#add species traits in
+variables<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/species traits list.csv")
+dat<-merge(variables,tempdat, by.x=c("species"),by.y=c('species'), all.x = T, all.y = T)
 
 #setting voltinism as a factor
 dat$voltinism<-as.factor(dat$voltinism)
 
-dat<-na.omit(dat)
+#model creation
+library(lme4) #for constructing mixed models
+library(lmerTest) #for displaying p-values
+library (car) #for Anova function
 
-## LOOKING FOR YEAR EFFECT ACROSS ENTIRE DATASET (aka alldat) ##
-# Required packages
-library(nlme)
+#trying out simple models. for fun. 
+#species as interacting effect?
+mod1 <- lm(jd~year*species, data=dat)
+summary(mod1)
+mod2 <- lm(jd~temp*species, data=dat)
+summary(mod2)
+#species as random effect?
+mod3 <- lmer(jd  ~ year*temp + (1 | species), data=dat)
+summary(mod3)
+#adding in variables
+#there are 4 variables of interest: voltinism, diettype, dietbreadth, overwinter
+mod4 <- lmer(jd  ~ year*voltinism + (1 | species), data=dat)
+summary(mod4)
 
-# defining full model (=most complex) to consider
-fullmod<- lme(julian~year+temp+voltinism+diettype+dietbreadth+overwinter+year:voltinism+year:diettype+year:dietbreadth+year:overwinter, random=~1|species, method="ML", data=dat)
-fullmod<- lme(earlydate~year+temp+voltinism+diettype+dietbreadth+overwinter+year:voltinism+year:diettype+year:dietbreadth+year:overwinter+temp:voltinism+temp:diettype+temp:dietbreadth+temp:overwinter, random=~1|species, method="ML", data=dat)
-fullmod<-lme(temp*overwinter) #(shorthand)
-summary(fullmod)
-anova(fullmod)
+Anova(mod3, type = 3, test.statistic =  "F") #(Anova from package car), 2 is appropriate for NS interactions
+
 
 #example: year:diettype: response different for diff diettypes for diff years
 #f-value: what does it mean? 
