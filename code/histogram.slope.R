@@ -4,25 +4,71 @@ library(plyr)
 
 #load temp/julian data. Any fulldat file may be substituted
 #triangle
-alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.filtered.csv")
+alldat<-read.csv("data/temp.earlydate.uniquedate.triangle.static.4.months.csv")
 
 ##############################################################################
 
 #creating for loop (First I'll just try to get this to read the plots and put them in a pdf)
 species<-unique(alldat$species)
-pdf("julian.year.4months.static.unique.date.filtered.pdf",width=10, height=8)
+pdf("julian.year.4months.static.unique.date.cooksd.pdf",width=10, height=8)
 par(mfrow=c(2,3))
 
 for (s in species) {
   df=alldat[alldat$species==s,]
-  lm.sub=lm(df$jd~df$year,xlab="year", ylab="julian", group=species)
-  plot(df$jd~df$temp, xlab='year', ylab='Early Date (julian)', main=paste(s))
-  abline(lm(df$jd~df$year))
-  rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
-  pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
+  lm.sub=lm(df$jd~df$year)
+  cooksD <- cooks.distance(lm.sub)
+  influential <- as.numeric(names(cooksD)[(cooksD > (4/nrow(df)))])
+  length_influential <- length(influential) 
+  if (length_influential >= 1) {
+    df_screen <- df[-influential, ]
+    plot(df_screen$jd~df_screen$year, xlab='year', ylab='Early Date (julian)', main=paste(s))
+    lm.sub_screen = lm(df_screen$jd~df_screen$year, xlab="year", ylab = "julian")
+    abline(lm(df_screen$jd~df_screen$year))
+    rsquared<-paste("R2=",format(summary(lm.sub_screen)$r.squared, digits=4))
+    pvalue<-paste("p=", format(summary(lm.sub_screen)$coefficients[2,4]), digits=4)
+  } else {
+    plot(df$jd~df$year, xlab='year', ylab='Early Date (julian)', main=paste(s))
+    lm.sub = lm(df$jd~df$year, xlab="year", ylab = "julian")
+    abline(lm(df$jd~df$year))
+    rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
+    pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
+  }
   legend("topright", bty="n", legend=c(rsquared,pvalue))
 }
 dev.off()
+
+#############################################################################################
+#an additional for loop for temp
+pdf("julian.temp.4months.static.unique.date.cooksd.pdf",width=10, height=8)
+par(mfrow=c(2,3))
+
+for (s in species) {
+  df=alldat[alldat$species==s,]
+  lm.sub=lm(df$jd~df$temp)
+  cooksD <- cooks.distance(lm.sub)
+  influential <- as.numeric(names(cooksD)[(cooksD > (4/nrow(df)))])
+  length_influential <- length(influential) 
+  if (length_influential >= 1) {
+    df_screen <- df[-influential, ]
+    plot(df_screen$jd~df_screen$temp, xlab='temp', ylab='Early Date (julian)', main=paste(s))
+    lm.sub_screen = lm(df_screen$jd~df_screen$temp, xlab="temp", ylab = "julian")
+    abline(lm(df_screen$jd~df_screen$temp))
+    rsquared<-paste("R2=",format(summary(lm.sub_screen)$r.squared, digits=4))
+    pvalue<-paste("p=", format(summary(lm.sub_screen)$coefficients[2,4]), digits=4)
+  } else {
+    plot(df$jd~df$temp, xlab='temp', ylab='Early Date (julian)', main=paste(s))
+    lm.sub = lm(df$jd~df$temp, xlab="temp", ylab = "julian")
+    abline(lm(df$jd~df$temp))
+    rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
+    pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
+  }
+  legend("topright", bty="n", legend=c(rsquared,pvalue))
+}
+dev.off()
+
+
+
+#############################################################################################
 
 #generate a dataframe of species,slope,r-squared and p-value
 output = data.frame(species = character(),
@@ -84,3 +130,27 @@ library(ggplot2)
 #binomial test to test whether number of negative slopes is greater 
 binom.test(12, 44, 0.5, alternative="greater")
 
+###########################################################
+df=alldat[alldat$species=="Megisto cymela",]
+lm.sub=lm(df$jd~df$year)
+cooksD <- cooks.distance(lm.sub)
+influential <- as.numeric(names(cooksD)[(cooksD > (4/nrow(df)))])
+length_influential <- length(influential)
+if (length(influential) = 0){
+  df_screen <- df[-influential, ]
+  plot(df_screen$jd~df_screen$year, xlab='year', ylab='Early Date (julian)', main=paste("hey"))
+  lm.sub_screen = lm(df_screen$jd~df_screen$year, xlab="year", ylab = "julian")
+  abline(lm(df_screen$jd~df_screen$year))
+  rsquared<-paste("R2=",format(summary(lm.sub_screen)$r.squared, digits=4))
+  pvalue<-paste("p=", format(summary(lm.sub_screen)$coefficients[2,4]), digits=4)
+} else {
+  plot(df$jd~df$year, xlab='year', ylab='Early Date (julian)', main=paste("hey"))
+  lm.sub = lm(df$jd~df$year, xlab="year", ylab = "julian")
+  abline(lm(df$jd~df$year))
+  rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
+  pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
+}
+legend("topright", bty="n", legend=c(rsquared,pvalue))
+
+
+length(hey)
