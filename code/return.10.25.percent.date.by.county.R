@@ -34,15 +34,8 @@ traits<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/speci
 #merge traits list with approximation
 dat2<-merge(traits, dat, by.x=c("Cname"), by.y=c("Cname"), all.x = F, all.y = F)
 
-#load species with outlier years
-outlierdat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/earlydate_outliers.csv")
-
-#merge dat with outlier years
-dat3<-merge(dat2, outlierdat, by.x=c("species", "year"), by.y=c("species", "year"), all.x = T, all.y = F)
-
 #subset column names to match the 2nd summary dataframe
-dat3<-dat3 %>%
-  filter(is.na(outlier))%>% #subset non-outlier years
+dat3<-dat2 %>%
   select("species", "abundance", "number", "year", "jd") 
 
 #Monarch is migratory, while ocola and red admiral are partly migratory
@@ -92,7 +85,6 @@ for (s in species){
 }
 
 output2 <- output[!is.infinite(output$jd),] #note:many Infs where there were not enough data
-write.csv(output2,file="C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/10.percent.earlydate.uniquedate.triangle.csv")
 
 ########################################################
 #load and merge in temperature data
@@ -107,8 +99,9 @@ tempdat2<-aggregate(temp~year, tempdat, FUN=mean)
 tempjulian = merge(tempdat2, output2, by.x = c('year'), by.y =c('year'), all.x = T, all.y = T)
 tempjulian<-na.omit(tempjulian)
 
-#create a csv that includes temperature and julian dates
-write.csv(tempjulian, "C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.filtered.csv")
+#create a csv that includes temperature and julian dates, if desired
+write.csv(tempjulian, "C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.csv")
+
 
 #-------------------------------------------------------------
 #to visualize differences in sampling effort between years
