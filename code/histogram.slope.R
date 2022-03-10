@@ -7,7 +7,7 @@ library(plyr)
 alldat<-read.csv("data/temp.earlydate.uniquedate.triangle.static.4.months.csv")
 
 ##############################################################################
-
+#for loop excluding outliers using cooks D
 #creating for loop (First I'll just try to get this to read the plots and put them in a pdf)
 species<-unique(alldat$species)
 pdf("julian.year.4months.static.unique.date.cooksd.pdf",width=10, height=8)
@@ -69,6 +69,42 @@ dev.off()
 
 
 #############################################################################################
+#subsetting by an arbitrary start date (I'm saying july 1, approx. 182)
+#julian vs. year
+pdf("julian.year.4months.static.unique.date.july1.pdf",width=10, height=8)
+par(mfrow=c(2,3))
+
+for (s in species) {
+  df=alldat[alldat$species==s,]
+  df2 <- df[(df$jd < 182) , ]
+  lm.sub=lm(df2$jd~df2$year)
+  plot(df2$jd~df2$year, xlab='year', ylab='Early Date (julian)', main=paste(s))
+  abline(lm(df2$jd~df2$year))
+  rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
+  pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
+  legend("topright", bty="n", legend=c(rsquared,pvalue))
+}
+dev.off()
+
+#############################################################################################
+#subsetting by an arbitrary start date (I'm saying july 1, approx. 182)
+#julian vs. temp
+pdf("julian.temp.4months.static.unique.date.july1.pdf",width=10, height=8)
+par(mfrow=c(2,3))
+
+for (s in species) {
+  df=alldat[alldat$species==s,]
+  df2 <- df[(df$jd < 182) , ]
+  lm.sub=lm(df2$jd~df2$temp)
+  plot(df2$jd~df2$year, xlab='temp', ylab='Early Date (julian)', main=paste(s))
+  abline(lm(df2$jd~df2$temp))
+  rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
+  pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
+  legend("topright", bty="n", legend=c(rsquared,pvalue))
+}
+dev.off()
+
+###################################################################################
 
 #generate a dataframe of species,slope,r-squared and p-value
 output = data.frame(species = character(),
@@ -88,6 +124,12 @@ for (s in species) {
                           pvalue = pvalue)
   output<-rbind(output,tempoutput)
 }
+
+#create a csv that includes temperature and julian dates, if desired
+write.csv(output, "data/year.earlydate.uniquedate.triangle.cooksd.4.months.csv")
+
+#################################################################################
+#histograms and summary stats
 
 mean(output$slope)
 ok1<-subset(output, output$pvalue<0.05)
@@ -130,27 +172,3 @@ library(ggplot2)
 #binomial test to test whether number of negative slopes is greater 
 binom.test(12, 44, 0.5, alternative="greater")
 
-###########################################################
-df=alldat[alldat$species=="Megisto cymela",]
-lm.sub=lm(df$jd~df$year)
-cooksD <- cooks.distance(lm.sub)
-influential <- as.numeric(names(cooksD)[(cooksD > (4/nrow(df)))])
-length_influential <- length(influential)
-if (length(influential) = 0){
-  df_screen <- df[-influential, ]
-  plot(df_screen$jd~df_screen$year, xlab='year', ylab='Early Date (julian)', main=paste("hey"))
-  lm.sub_screen = lm(df_screen$jd~df_screen$year, xlab="year", ylab = "julian")
-  abline(lm(df_screen$jd~df_screen$year))
-  rsquared<-paste("R2=",format(summary(lm.sub_screen)$r.squared, digits=4))
-  pvalue<-paste("p=", format(summary(lm.sub_screen)$coefficients[2,4]), digits=4)
-} else {
-  plot(df$jd~df$year, xlab='year', ylab='Early Date (julian)', main=paste("hey"))
-  lm.sub = lm(df$jd~df$year, xlab="year", ylab = "julian")
-  abline(lm(df$jd~df$year))
-  rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
-  pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
-}
-legend("topright", bty="n", legend=c(rsquared,pvalue))
-
-
-length(hey)
