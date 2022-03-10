@@ -108,25 +108,56 @@ dev.off()
 
 #generate a dataframe of species,slope,r-squared and p-value
 output = data.frame(species = character(),
-                    slope=numeric(),
-                    rsquared = numeric(),
-                    pvalue = numeric())
+                    year.slope=numeric(),
+                    year.rsquared = numeric(),
+                    year.pvalue = numeric(),
+                    temp.slope=numeric(),
+                    temp.rsquared = numeric(),
+                    temp.pvalue = numeric())
 
 species<-unique(alldat$species)
 
+
 for (s in species) {
   df<-alldat[alldat$species==s,]
-  lm.sub<-lm(df$julian~df$year)
-  slope<-summary(lm.sub)$coefficients[2,1] 
-  rsquared<-summary(lm.sub)$r.squared
-  pvalue<-summary(lm.sub)$coefficients[2,4]
-  tempoutput<- data.frame(species = s, slope=slope, rsquared = rsquared,
-                          pvalue = pvalue)
+  lm.sub.year<-lm(df$jd~df$year)
+  lm.sub.temp<-lm(df$jd~df$temp)
+  cooksD.year <- cooks.distance(lm.sub.year)
+  cooksD.temp <- cooks.distance(lm.sub.temp)
+  influential.year <- as.numeric(names(cooksD.year)[(cooksD.year > (4/nrow(df)))])
+  influential.temp <- as.numeric(names(cooksD.temp)[(cooksD.temp > (4/nrow(df)))])
+  length_influential.year <- length(influential.year)
+  length_influential.temp <- length(influential.temp)
+  if (length_influential.year >= 1) {
+    df_screen.year <- df[-influential.year, ]
+    lm.sub_screen.year = lm(df_screen.year$jd~df_screen.year$year)
+  } else {
+    lm.sub_screen.year = lm(df$jd~df$year)
+  }
+  if (length_influential.temp >= 1) {
+    df_screen.temp <- df[-influential.temp, ]
+    lm.sub_screen.temp = lm(df_screen.temp$jd~df_screen.temp$temp)
+  } else {
+    lm.sub_screen.year = lm(df$jd~df$temp)
+  }
+  year.slope<-summary(lm.sub_screen.year)$coefficients[2,1] 
+  year.rsquared<-summary(lm.sub_screen.year)$r.squared
+  year.pvalue<-summary(lm.sub_screen.year)$coefficients[2,4]
+  temp.slope<-summary(lm.sub_screen.temp)$coefficients[2,1] 
+  temp.rsquared<-summary(lm.sub_screen.temp)$r.squared
+  temp.pvalue<-summary(lm.sub_screen.temp)$coefficients[2,4]
+  tempoutput<- data.frame(species = s, 
+                          year.slope=year.slope, 
+                          year.rsquared = year.rsquared,
+                          year.pvalue = year.pvalue,
+                          temp.slope=temp.slope, 
+                          temp.rsquared = temp.rsquared,
+                          temp.pvalue = temp.pvalue)
   output<-rbind(output,tempoutput)
 }
 
 #create a csv that includes temperature and julian dates, if desired
-write.csv(output, "data/year.earlydate.uniquedate.triangle.cooksd.4.months.csv")
+write.csv(output, "data/year.temp.earlydate.uniquedate.triangle.cooksd.4.months.csv")
 
 #################################################################################
 #histograms and summary stats

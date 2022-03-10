@@ -6,10 +6,10 @@ library(tidyr)
 library(readxl)
 
 #load approximation data
-alldat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/bnc_thru2020.csv")
+alldat<-read.csv("data/bnc_thru2020.csv")
 
 #add labels to designate triangle observations
-labels<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/triangle_labels.csv")
+labels<-read.csv("data/triangle_labels.csv")
 
 labels<-labels %>%
   select(county_lc, triangle) %>% #subset labels with lowercase county format
@@ -29,7 +29,7 @@ dat <- dat %>%
 dat$abundance <- 1
 
 #load species trait data (includes scientific names)
-traits<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/species traits list.csv")
+traits<-read.csv("data/species traits list.csv")
 
 #merge traits list with approximation
 dat2<-merge(traits, dat, by.x=c("Cname"), by.y=c("Cname"), all.x = F, all.y = F)
@@ -90,7 +90,7 @@ output2 <- output[!is.infinite(output$jd),] #note:many Infs where there were not
 #load and merge in temperature data
 
 #load temperature data
-tempdat<-read.csv("C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/tempmean.4.months.triangle.static.2020.csv")
+tempdat<-read.csv("data/tempmean.4.months.triangle.static.2020.csv")
 
 #average temperatures across all three triangle counties for each year (if desired)
 tempdat2<-aggregate(temp~year, tempdat, FUN=mean)
@@ -100,7 +100,7 @@ tempjulian = merge(tempdat2, output2, by.x = c('year'), by.y =c('year'), all.x =
 tempjulian<-na.omit(tempjulian)
 
 #create a csv that includes temperature and julian dates, if desired
-write.csv(tempjulian, "C:/Users/lhamo/Documents/git/nc-butterfly-phenology/data/temp.earlydate.uniquedate.triangle.static.4.months.csv")
+write.csv(tempjulian, "data/temp.earlydate.uniquedate.triangle.static.4.months.csv")
 
 
 #-------------------------------------------------------------
