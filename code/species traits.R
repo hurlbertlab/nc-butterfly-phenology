@@ -1,6 +1,6 @@
 #load early date vs. temp and year data
 library(plyr)
-tempdat<-read.csv("data/temp.earlydate.uniquedate.triangle.static.4.months.filtered.csv")
+tempdat<-read.csv("data/year.temp.earlydate.uniquedate.triangle.cooksd.4.months.csv")
 
 #add species traits in
 variables<-read.csv("data/species traits list.csv")
@@ -15,18 +15,19 @@ library(lmerTest) #for displaying p-values
 library (car) #for Anova function
 
 #trying out simple models. for fun. 
-#species as interacting effect?
-mod1 <- lm(jd~year*species, data=dat)
+#year
+mod1 <- lm(year.slope~overwinter, data=dat)
 summary(mod1)
-mod2 <- lm(jd~temp*species, data=dat)
+mod2 <- lm(year.slope~voltinism, data=dat)
 summary(mod2)
-#species as random effect?
-mod3 <- lmer(jd  ~ year*temp + (1 | species), data=dat)
+#temp
+mod3 <- lm(temp.slope~overwinter, data=dat)
 summary(mod3)
-#adding in variables
-#there are 4 variables of interest: voltinism, diettype, dietbreadth, overwinter
-mod4 <- lmer(jd  ~ year*voltinism + (1 | species), data=dat)
+mod4 <- lm(temp.slope~voltinism, data=dat)
 summary(mod4)
+#multiple
+mod5 <- lm(temp.slope  ~ overwinter*voltinism, data=dat)
+summary(mod5)
 
 Anova(mod3, type = 3, test.statistic =  "F") #(Anova from package car), 2 is appropriate for NS interactions
 
