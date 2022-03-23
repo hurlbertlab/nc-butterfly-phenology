@@ -96,7 +96,7 @@ for (s in species) {
   df=alldat[alldat$species==s,]
   df2 <- df[(df$jd < 182) , ]
   lm.sub=lm(df2$jd~df2$temp)
-  plot(df2$jd~df2$year, xlab='temp', ylab='Early Date (julian)', main=paste(s))
+  plot(df2$jd~df2$temp, xlab='temp', ylab='Early Date (julian)', main=paste(s))
   abline(lm(df2$jd~df2$temp))
   rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
   pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
@@ -113,7 +113,11 @@ output = data.frame(species = character(),
                     year.pvalue = numeric(),
                     temp.slope=numeric(),
                     temp.rsquared = numeric(),
-                    temp.pvalue = numeric())
+                    temp.pvalue = numeric(),
+                    mean.year.earlydate=numeric(),
+                    se.year.earlydate=numeric(),
+                    mean.temp.earlydate=numeric(),
+                    se.temp.earlydate=numeric())
 
 species<-unique(alldat$species)
 
@@ -131,14 +135,22 @@ for (s in species) {
   if (length_influential.year >= 1) {
     df_screen.year <- df[-influential.year, ]
     lm.sub_screen.year = lm(df_screen.year$jd~df_screen.year$year)
+    mean.year.earlydate = mean(df_screen.year$jd)
+    se.year.earlydate = sd(df_screen.year$jd)/sqrt(nrow(df_screen.year))
   } else {
     lm.sub_screen.year = lm(df$jd~df$year)
+    mean.year.earlydate = mean(df$jd)
+    se.year.earlydate = sd(df$jd)/sqrt(nrow(df))
   }
   if (length_influential.temp >= 1) {
     df_screen.temp <- df[-influential.temp, ]
     lm.sub_screen.temp = lm(df_screen.temp$jd~df_screen.temp$temp)
+    mean.temp.earlydate = mean(df_screen.temp$jd)
+    se.temp.earlydate = sd(df_screen.temp$jd)/sqrt(nrow(df_screen.temp))
   } else {
     lm.sub_screen.year = lm(df$jd~df$temp)
+    mean.temp.earlydate = mean(df$jd)
+    se.temp.earlydate = sd(df$jd)/sqrt(nrow(df))
   }
   year.slope<-summary(lm.sub_screen.year)$coefficients[2,1] 
   year.rsquared<-summary(lm.sub_screen.year)$r.squared
@@ -152,7 +164,11 @@ for (s in species) {
                           year.pvalue = year.pvalue,
                           temp.slope=temp.slope, 
                           temp.rsquared = temp.rsquared,
-                          temp.pvalue = temp.pvalue)
+                          temp.pvalue = temp.pvalue,
+                          mean.year.earlydate = mean.year.earlydate,
+                          se.year.earlydate = se.year.earlydate,
+                          mean.temp.earlydate = mean.temp.earlydate,
+                          se.temp.earlydate = se.temp.earlydate)
   output<-rbind(output,tempoutput)
 }
 
