@@ -6,9 +6,6 @@ tempdat<-read.csv("data/year.temp.earlydate.uniquedate.triangle.cooksd.4.months.
 variables<-read.csv("data/species traits list.csv")
 dat<-merge(variables,tempdat, by.x=c("species"),by.y=c('species'), all.x = T, all.y = T)
 
-#setting voltinism as a factor
-dat$voltinism<-as.factor(dat$voltinism)
-
 #model creation
 library(lme4) #for constructing mixed models
 library(lmerTest) #for displaying p-values
@@ -28,6 +25,14 @@ summary(mod4)
 #multiple
 mod5 <- lm(temp.slope  ~ overwinter*voltinism, data=dat)
 summary(mod5)
+
+#exploring the relationship between traits and phenology
+#are multivoltine species appearing earlier in the year? Smaller mean early flight date phenology
+#mean early date across all our different points as an explanatory
+  #the earlier in the year you are, the more sensitive your response
+  #interaction of earlydate with voltinism 
+
+
 
 Anova(mod3, type = 3, test.statistic =  "F") #(Anova from package car), 2 is appropriate for NS interactions
 

@@ -42,7 +42,8 @@ dat3<-dat2 %>%
 #remove those here, if desired
 dat3<-dat3[dat3$species != "Danaus plexippus", ] 
 dat3<-dat3[dat3$species != "Panoquina ocola", ]   
-dat3<-dat3[dat3$species != "Vanessa atalanta", ]   
+dat3<-dat3[dat3$species != "Vanessa atalanta", ] 
+dat3<-dat3[dat3$species != "Junonia coenia", ]
 
 #filter out years that have less than 10 unique dates
 goodspeciesyears <- dat3 %>% 
