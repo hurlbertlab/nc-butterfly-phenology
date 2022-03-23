@@ -3,24 +3,24 @@ Pieridae,Coliadinae,Abaeis,Sleepy Orange,Abaeis nicippe,3,3+,both,genus,NA,no,ad
 Hesperiidae,Hesperiinae,Ancyloxypha,Least Skipper,Ancyloxypha numitor,3,3,herb,family,NA,no,larvae
 Pieridae,Pierinae,Anthocharis,Falcate Orangetip,Anthocharis midea,1,1,herb,family,NA,no,pupae
 Nymphalidae,Apaturinae,Asterocampa,Hackberry Emperor,Asterocampa celtis,3,3,woody,genus,NA,no,larvae
-Hesperiidae,Hesperiinae,Atalopedes,Sachem,Atalopedes campestris,3,3?,herb,family,NA,no,adults
+Hesperiidae,Hesperiinae,Atalopedes,Sachem,Atalopedes campestris,3,3?,herb,family,NA,no,larvae
 Papilionidae,Papilioninae,Battus,Pipevine Swallowtail,Battus philenor,3,probably three,herb,genus,NA,no,pupae
-Lycaenidae,Theclinae,Calycopis,Red-banded Hairstreak,Calycopis cecrops,2,supposedly two,woody,multifamily,NA,no,pupaelarvae
+Lycaenidae,Theclinae,Calycopis,Red-banded Hairstreak,Calycopis cecrops,2,supposedly two,woody,multifamily,NA,no,larvae
 Lycaenidae,Polyommatinae,Celastrina,Spring Azure,Celastrina ladon,1,1,both,multifamily,vague,no,pupae
 Lycaenidae,Polyommatinae,Celastrina,Summer Azure,Celastrina neglecta,3,3 to 4,both,multifamily,NA,no,pupae
 Nymphalidae,Nymphalinae,Chlosyne,Silvery Checkerspot,Chlosyne nycteis,3,3,herb,family,NA,no,larvae
 Pieridae,Coliadinae,Colias,Orange Sulphur,Colias eurytheme,4,possibly four or five,herb,family,NA,no,pupae
 Lycaenidae,Polyommatinae,Cupido,Eastern Tailed-Blue,Cupido comyntas,4,probably four or five,herb,family,NA,no,larvae
 Nymphalidae,Satyrinae,Cyllopsis,Gemmed Satyr,Cyllopsis gemma,3,3,herb,family,NA,no,larvae
-Hesperiidae,Eudaminae,Epargyreus,Silver-Spotted Skipper,Epargyreus clarus,2.5,"two, probably three",both,family,NA,no,pupae
+Hesperiidae,Eudaminae,Epargyreus,Silver-Spotted Skipper,Epargyreus clarus,2,"two, probably three",both,family,NA,no,pupae
 Hesperiidae,Pyrginae,Erynnis,Horace's Duskywing,Erynnis horatius,3,probably three,woody,genus,NA,no,larvae
 Hesperiidae,Pyrginae,Erynnis,Juvenal's Duskywing,Erynnis juvenalis,1,1,woody,genus,NA,no,larvae
 Hesperiidae,Hesperiinae,Euphyes,Dun Skipper,Euphyes vestris,2,2,herb,family,NA,no,larvae
-Nymphalidae,Heliconiinae,Euptoieta,Variegated Fritillary,Euptoieta claudia,3,"three, possibly four",herb,multifamily,NA,no,adults
+Nymphalidae,Heliconiinae,Euptoieta,Variegated Fritillary,Euptoieta claudia,3,"three, possibly four",herb,multifamily,NA,yes,adults
 Papilionidae,Papilioninae,Eurytides,Zebra Swallowtail,Eurytides marcellus,3,apparently three,woody,genus,twospecies,no,pupae
 Nymphalidae,Satyrinae,Hermeuptychia,Carolina Satyr,Hermeuptychia sosybius,3,apparently three,herb,family,NA,no,larvae
-Hesperiidae,Hesperiinae,Hylephila,Fiery Skipper,Hylephila phyleus,3,probably three,herb,family,NA,no,NA
-Nymphalidae,Nymphalinae,Junonia,Common Buckeye,Junonia coenia,3,at least three,herb,multifamily,NA,no,larvaeadults
+Hesperiidae,Hesperiinae,Hylephila,Fiery Skipper,Hylephila phyleus,3,probably three,herb,family,NA,yes,NA
+Nymphalidae,Nymphalinae,Junonia,Common Buckeye,Junonia coenia,3,at least three,herb,multifamily,NA,yes,NA
 Hesperiidae,Hesperiinae,Lerema,Clouded Skipper,Lerema accius,1,seemingly one,herb,family,NA,no,NA
 Nymphalidae,Satyrinae,Lethe,Northern Pearly-Eye,Lethe anthedon,3,apparently three,herb,family,NA,no,larvae
 Nymphalidae,Satyrinae,Lethe,Appalachian Brown,Lethe appalachia,2,2,herb,family,NA,no,larvae
@@ -30,7 +30,7 @@ Nymphalidae,Limenitidinae,Limenitis,Red-spotted Purple,Limenitis arthemis astyan
 Nymphalidae,Satyrinae,Megisto,Little Wood-Satyr,Megisto cymela,1,seemingly one,herb,family,NA,no,larvae
 Hesperiidae,Hesperiinae,Nastra,Swarthy Skipper,Nastra lherminier,2,2,herb,species,vague,no,NA
 Hesperiidae,Hesperiinae,Panoquina,Ocola Skipper,Panoquina ocola,2,presumably two,herb,family,vague,yes,NA
-Papilionidae,Papilioninae,Papilio,Eastern Tiger Swallowtail,Papilio glaucus,2.5,"two, possibly three",woody,multifamily,NA,no,pupae
+Papilionidae,Papilioninae,Papilio,Eastern Tiger Swallowtail,Papilio glaucus,2,"two, possibly three",woody,multifamily,NA,no,pupae
 Papilionidae,Papilioninae,Papilio,Black Swallowtail,Papilio polyxenes,3,apparently three,herb,family,NA,no,pupae
 Papilionidae,Papilioninae,Papilio,Spicebush Swallowtail,Papilio troilus,2,"apparently two, possible third",woody,family,twospecies,no,pupae
 Pieridae,Coliadinae,Phoebis,Cloudless Sulphur,Phoebis sennae,2.5,2 to 3,herb,family,Fabaceae,yes,adults
@@ -44,6 +44,6 @@ Hesperiidae,Pyrginae,Pyrgus,Common Checkered-Skipper,Pyrgus communis,3,apparentl
 Nymphalidae,Heliconiinae,Speyeria,Great Spangled Fritillary,Speyeria cybele,1,1,herb,genus,NA,no,larvae
 Lycaenidae,Theclinae,Strymon,Gray Hairstreak,Strymon melinus,3,at least three,both,multifamily,NA,no,pupae
 Hesperiidae,Eudaminae,Thorybes,Southern Cloudywing,Thorybes bathyllus,2,2,herb,family,NA,no,larvae
-Nymphalidae,Nymphalinae,Vanessa,Red Admiral,Vanessa atalanta,3,probably three,herb,family,vague,no,adults
-Nymphalidae,Nymphalinae,Vanessa,American Lady,Vanessa virginiensis,3.5,3 to 4,herb,family,vague,no,adults
+Nymphalidae,Nymphalinae,Vanessa,Red Admiral,Vanessa atalanta,3,probably three,herb,family,vague,yes,adults
+Nymphalidae,Nymphalinae,Vanessa,American Lady,Vanessa virginiensis,3,3 to 4,herb,family,vague,no,adults
 Hesperiidae,Hesperiinae,Wallengrenia,Southern Broken-Dash,Wallengrenia otho,2,2,herb,family,NA,no,NA

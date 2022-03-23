@@ -6,6 +6,9 @@ tempdat<-read.csv("data/year.temp.earlydate.uniquedate.triangle.cooksd.4.months.
 variables<-read.csv("data/species traits list.csv")
 dat<-merge(variables,tempdat, by.x=c("species"),by.y=c('species'), all.x = T, all.y = T)
 
+#drop migratory of partially migratory spp (if not already removed)
+dat<-dat[dat$migratory != "yes", ]   
+
 #model creation
 library(lme4) #for constructing mixed models
 library(lmerTest) #for displaying p-values
@@ -13,17 +16,17 @@ library (car) #for Anova function
 
 #trying out simple models. for fun. 
 #year
-mod1 <- lm(year.slope~overwinter, data=dat)
+mod1 <- lm(year.slope~overwinter, data=dat, weights=(1/dat$se.year.earlydate))
 summary(mod1)
-mod2 <- lm(year.slope~voltinism, data=dat)
+mod2 <- lm(year.slope~voltinism, data=dat, weights=(1/dat$se.year.earlydate))
 summary(mod2)
 #temp
-mod3 <- lm(temp.slope~overwinter, data=dat)
+mod3 <- lm(temp.slope~overwinter, data=dat, weights=(1/dat$se.temp.earlydate))
 summary(mod3)
-mod4 <- lm(temp.slope~voltinism, data=dat)
+mod4 <- lm(temp.slope~voltinism, data=dat, weights=(1/dat$se.temp.earlydate))
 summary(mod4)
 #multiple
-mod5 <- lm(temp.slope  ~ overwinter*voltinism, data=dat)
+mod5 <- lm(temp.slope  ~ overwinter*voltinism, data=dat , weights=(1/dat$se.temp.earlydate))
 summary(mod5)
 
 #exploring the relationship between traits and phenology
@@ -31,10 +34,35 @@ summary(mod5)
 #mean early date across all our different points as an explanatory
   #the earlier in the year you are, the more sensitive your response
   #interaction of earlydate with voltinism 
+#year
+mod6 <- lm(year.slope~voltinism*mean.year.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
+summary(mod6)
+mod7 <- lm(year.slope~overwinter*mean.year.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
+summary(mod7)
+#temp
+mod8 <- lm(temp.slope~voltinism*mean.temp.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
+summary(mod8)
+mod9 <- lm(temp.slope~overwinter*mean.temp.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
+summary(mod9)
 
+#visualizing interacting effects?
+#graphing seed set vs. local density by HP treatment
+#making certain calls: 
+  #Epargyreus clarus: 2.5 -> 2
+  #Papilio glaucus: 2.5 -> 2
+  #Vanessa virginiensis: 3.5 ->3
+  #alternatively: remove these species?
+  #alternatively: voltinism of 4? 
 
-
-Anova(mod3, type = 3, test.statistic =  "F") #(Anova from package car), 2 is appropriate for NS interactions
+library(ggplot2)
+dat2 <- dat
+dat2$voltinism <- as.factor(dat2$voltinism)
+voltplot <- ggplot(dat2, aes(x = mean.temp.earlydate, y = temp.slope, color = voltinism)) +
+              theme_bw() +
+              labs(x = "mean earlydate", y = "earlydate v. temp slope", color = "voltinism (factor)")+
+              geom_point(alpha = .3, size = .9) +
+              geom_smooth(method = "lm")
+voltplot
 
 
 #example: year:diettype: response different for diff diettypes for diff years
