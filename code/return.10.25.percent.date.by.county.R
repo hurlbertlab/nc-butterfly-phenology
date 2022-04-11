@@ -51,6 +51,12 @@ goodspeciesyears <- dat3 %>%
   right_join(dat3, by = c("species", "year")) %>%
   filter(n >= 10)
 
+#visualising distrubtion of Legrand data
+library(ggplot2)
+datehist<-ggplot(dat3, aes(x=year)) + 
+  geom_histogram(color="black", fill="white")
+datehist
+
 #-------------------------------------------------------
 
 # First need to create a vector of dates for individuals

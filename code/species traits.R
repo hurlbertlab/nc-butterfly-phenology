@@ -26,8 +26,14 @@ summary(mod3)
 mod4 <- lm(temp.slope~voltinism, data=dat, weights=(1/dat$se.temp.earlydate))
 summary(mod4)
 #multiple
-mod5 <- lm(temp.slope  ~ overwinter*voltinism, data=dat , weights=(1/dat$se.temp.earlydate))
+mod5 <- lm(year.slope  ~ overwinter*voltinism, data=dat , weights=(1/dat$se.temp.earlydate))
 summary(mod5)
+mod6 <- lm(temp.slope  ~ overwinter*voltinism, data=dat , weights=(1/dat$se.temp.earlydate))
+summary(mod6)
+
+#model comparison
+anova(mod2, mod5) #year, overwinter vs overwinter + voltinism
+anova(mod4, mod6) #temp, overwinter vs overwinter + voltinism
 
 #exploring the relationship between traits and phenology
 #are multivoltine species appearing earlier in the year? Smaller mean early flight date phenology
@@ -35,18 +41,26 @@ summary(mod5)
   #the earlier in the year you are, the more sensitive your response
   #interaction of earlydate with voltinism 
 #year
-mod6 <- lm(year.slope~voltinism*mean.year.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
-summary(mod6)
-mod7 <- lm(year.slope~overwinter*mean.year.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
+mod7 <- lm(year.slope~voltinism*mean.year.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
 summary(mod7)
-#temp
-mod8 <- lm(temp.slope~voltinism*mean.temp.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
+mod8 <- lm(year.slope~overwinter*mean.year.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
 summary(mod8)
-mod9 <- lm(temp.slope~overwinter*mean.temp.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
-summary(mod9)
+#temp
+mod9 <- lm(temp.slope~voltinism*mean.temp.earlydate, data=dat, weights=(1/dat$se.temp.earlydate))
+summary(mod9) #only significant one
+mod10 <- lm(temp.slope~overwinter*mean.temp.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
+summary(mod10)
+#interactions
+mod11 <- lm(year.slope~voltinism*mean.year.earlydate+overwinter, data=dat, weights=(1/dat$se.temp.earlydate))
+summary(mod11)
+mod12 <- lm(temp.slope~voltinism*mean.temp.earlydate+overwinter, data=dat, weights=(1/dat$se.temp.earlydate))
+summary(mod12)
+
+#model comparison
+anova(mod7, mod11) #year, overwinter vs overwinter + voltinism
+anova(mod9, mod12) #temp, overwinter vs overwinter + voltinism
 
 #visualizing interacting effects?
-#graphing seed set vs. local density by HP treatment
 #making certain calls: 
   #Epargyreus clarus: 2.5 -> 2
   #Papilio glaucus: 2.5 -> 2
@@ -54,15 +68,55 @@ summary(mod9)
   #alternatively: remove these species?
   #alternatively: voltinism of 4? 
 
+#visulizing distribution of slopes by factors
 library(ggplot2)
 dat2 <- dat
+#temp slope vs. voltinism boxplot
 dat2$voltinism <- as.factor(dat2$voltinism)
-voltplot <- ggplot(dat2, aes(x = mean.temp.earlydate, y = temp.slope, color = voltinism)) +
+voltplot<- ggplot(dat, aes(x=voltinism, y=temp.slope, group=voltinism)) + 
+                  geom_boxplot(outlier.colour="red", outlier.shape=8,
+                  outlier.size=4)+
+                  geom_dotplot(binaxis='y', stackdir='center', dotsize=1)+
+                  geom_jitter(shape=16, position=position_jitter(0.2))
+voltplot
+  #common checkered skipper, sachem, gray hairstreak are outliers
+
+#temp slope vs. overwinter boxplot
+winterplot<- ggplot(dat, aes(x=overwinter, y=temp.slope)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8,
+               outlier.size=4)+
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=1)+
+  geom_jitter(shape=16, position=position_jitter(0.2))
+winterplot
+
+#year slope vs. voltinism boxplot
+voltplot2<- ggplot(dat, aes(x=voltinism, y=year.slope, group=voltinism)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8,
+               outlier.size=4)+
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=1)+
+  geom_jitter(shape=16, position=position_jitter(0.2))
+voltplot2
+  #swarthy skipper, great spangled fritillaries are outliers
+
+#year slope vs. overwinter boxplot
+winterplot2<- ggplot(dat, aes(x=overwinter, y=year.slope)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8,
+               outlier.size=4)+
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=1)+
+  geom_jitter(shape=16, position=position_jitter(0.2))
+winterplot2
+
+#Interaction plot
+interactionplot <- ggplot(dat2, aes(x = mean.temp.earlydate, y = temp.slope, color = voltinism)) +
               theme_bw() +
               labs(x = "mean earlydate", y = "earlydate v. temp slope", color = "voltinism (factor)")+
-              geom_point(alpha = .3, size = .9) +
+              geom_point(size = 2, aes(shape=overwinter)) +
               geom_smooth(method = "lm")
-voltplot
+interactionplot
+
+
+
+
 
 
 #example: year:diettype: response different for diff diettypes for diff years
