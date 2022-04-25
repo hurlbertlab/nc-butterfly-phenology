@@ -10,30 +10,32 @@ alldat<-read.csv("data/temp.earlydate.uniquedate.triangle.static.4.months.csv")
 #for loop excluding outliers using cooks D
 #creating for loop (First I'll just try to get this to read the plots and put them in a pdf)
 species<-unique(alldat$species)
-pdf("julian.year.4months.static.unique.date.cooksd.pdf",width=10, height=8)
+pdf("julian.temp.4months.static.unique.date.cooksd.pdf",width=10, height=8)
 par(mfrow=c(2,3))
 
 for (s in species) {
   df=alldat[alldat$species==s,]
-  lm.sub=lm(df$jd~df$year)
+  lm.sub=lm(df$jd~df$temp)
   cooksD <- cooks.distance(lm.sub)
   influential <- as.numeric(names(cooksD)[(cooksD > (4/nrow(df)))])
   length_influential <- length(influential) 
   if (length_influential >= 1) {
     df_screen <- df[-influential, ]
-    plot(df_screen$jd~df_screen$year, xlab='year', ylab='Early Date (julian)', main=paste(s))
-    lm.sub_screen = lm(df_screen$jd~df_screen$year, xlab="year", ylab = "julian")
-    abline(lm(df_screen$jd~df_screen$year))
+    plot(df_screen$jd~df_screen$temp, xlab='temperature', ylab='Early Date (julian)', main=paste(s))
+    lm.sub_screen = lm(df_screen$jd~df_screen$temp, xlab="temperature", ylab = "julian")
+    abline(lm(df_screen$jd~df_screen$temp))
     rsquared<-paste("R2=",format(summary(lm.sub_screen)$r.squared, digits=4))
     pvalue<-paste("p=", format(summary(lm.sub_screen)$coefficients[2,4]), digits=4)
+    slope<-paste("slope=", format(summary(lm.sub_screen)$coefficients[2,1] ))
   } else {
-    plot(df$jd~df$year, xlab='year', ylab='Early Date (julian)', main=paste(s))
-    lm.sub = lm(df$jd~df$year, xlab="year", ylab = "julian")
-    abline(lm(df$jd~df$year))
+    plot(df$jd~df$temp, xlab='temperature', ylab='Early Date (julian)', main=paste(s))
+    lm.sub = lm(df$jd~df$temp, xlab="temperature", ylab = "julian")
+    abline(lm(df$jd~df$temp))
     rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
     pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
+    slope<-paste("slope=", format(summary(lm.sub)$coefficients[2,1] ))
   }
-  legend("topright", bty="n", legend=c(rsquared,pvalue))
+  legend("topright", bty="n", legend=c(rsquared,pvalue,slope))
 }
 dev.off()
 
@@ -121,7 +123,7 @@ output = data.frame(species = character(),
 
 species<-unique(alldat$species)
 
-
+#for loop for generating year and temp slopes, r-squares, p-values
 for (s in species) {
   df<-alldat[alldat$species==s,]
   lm.sub.year<-lm(df$jd~df$year)
@@ -129,7 +131,7 @@ for (s in species) {
   cooksD.year <- cooks.distance(lm.sub.year)
   cooksD.temp <- cooks.distance(lm.sub.temp)
   influential.year <- as.numeric(names(cooksD.year)[(cooksD.year > (4/nrow(df)))])
-  influential.temp <- as.numeric(names(cooksD.temp)[(cooksD.temp > (4/nrow(df)))])
+  influential.temp <- as.numeric(names(cooksD.temp)[(cooksD.temp > (4/nrow(df)))]) #which
   length_influential.year <- length(influential.year)
   length_influential.temp <- length(influential.temp)
   if (length_influential.year >= 1) {
@@ -148,7 +150,7 @@ for (s in species) {
     mean.temp.earlydate = mean(df_screen.temp$jd)
     se.temp.earlydate = sd(df_screen.temp$jd)/sqrt(nrow(df_screen.temp))
   } else {
-    lm.sub_screen.year = lm(df$jd~df$temp)
+    lm.sub_screen.temp = lm(df$jd~df$temp)
     mean.temp.earlydate = mean(df$jd)
     se.temp.earlydate = sd(df$jd)/sqrt(nrow(df))
   }

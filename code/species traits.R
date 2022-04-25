@@ -47,14 +47,14 @@ mod8 <- lm(year.slope~overwinter*mean.year.earlydate, data=dat, weights=(1/dat$s
 summary(mod8)
 #temp
 mod9 <- lm(temp.slope~voltinism*mean.temp.earlydate, data=dat, weights=(1/dat$se.temp.earlydate))
-summary(mod9) #only significant one
+summary(mod9) #significant one
 mod10 <- lm(temp.slope~overwinter*mean.temp.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
 summary(mod10)
 #interactions
 mod11 <- lm(year.slope~voltinism*mean.year.earlydate+overwinter, data=dat, weights=(1/dat$se.temp.earlydate))
 summary(mod11)
 mod12 <- lm(temp.slope~voltinism*mean.temp.earlydate+overwinter, data=dat, weights=(1/dat$se.temp.earlydate))
-summary(mod12)
+summary(mod12) #significant
 
 #model comparison
 anova(mod7, mod11) #year, overwinter vs overwinter + voltinism
@@ -63,9 +63,6 @@ anova(mod9, mod12) #temp, overwinter vs overwinter + voltinism
 #visulizing distribution of slopes by factors
 library(ggplot2)
 dat2 <- dat
-#run this if you wish to remove common checkered skipper, sachem
-dat2<-dat2[dat2$species != "Pyrgus communis", ]  
-dat2<-dat2[dat2$species != "Atalopedes campestris", ]   
 #temp slope vs. voltinism boxplot
 dat2$voltinism <- as.factor(dat2$voltinism)
 voltplot<- ggplot(dat2, aes(x=voltinism, y=temp.slope, group=voltinism)) + 
@@ -78,7 +75,7 @@ voltplot<- ggplot(dat2, aes(x=voltinism, y=temp.slope, group=voltinism)) +
 voltplot
 
 #temp slope vs. overwinter boxplot
-winterplot<- ggplot(dat, aes(x=overwinter, y=temp.slope)) + 
+winterplot<- ggplot(dat2, aes(x=overwinter, y=temp.slope)) + 
              geom_violin()+
               stat_summary(fun.data=mean_sdl, 
                            geom="pointrange", color="red")+
@@ -88,11 +85,8 @@ winterplot<- ggplot(dat, aes(x=overwinter, y=temp.slope)) +
 winterplot
 
 #year slope plots
-#run this to remove swarthy skipper and great spangled fritillary
-dat3<-dat2[dat2$species != "Nastra lherminier", ]  
-dat3<-dat3[dat3$species != "Speyeria cybele", ]  
 #year slope vs. voltinism boxplot
-voltplot2<- ggplot(dat3, aes(x=voltinism, y=year.slope)) + 
+voltplot2<- ggplot(dat2, aes(x=voltinism, y=year.slope)) + 
                   geom_violin()+
                   stat_summary(fun.data=mean_sdl, 
                                 geom="pointrange", color="red")+
@@ -102,7 +96,7 @@ voltplot2<- ggplot(dat3, aes(x=voltinism, y=year.slope)) +
 voltplot2
 
 #year slope vs. overwinter boxplot
-winterplot2<- ggplot(dat3, aes(x=overwinter, y=year.slope)) + 
+winterplot2<- ggplot(dat2, aes(x=overwinter, y=year.slope)) + 
                      geom_violin()+
                      stat_summary(fun.data=mean_sdl, 
                      geom="pointrange", color="red")+
@@ -118,10 +112,6 @@ interactionplot <- ggplot(dat2, aes(x = mean.temp.earlydate, y = temp.slope, col
               geom_point(size = 2, aes(shape=overwinter)) +
               geom_smooth(method = "lm")
 interactionplot
-
-
-
-
 
 
 #example: year:diettype: response different for diff diettypes for diff years
