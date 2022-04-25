@@ -60,50 +60,55 @@ summary(mod12)
 anova(mod7, mod11) #year, overwinter vs overwinter + voltinism
 anova(mod9, mod12) #temp, overwinter vs overwinter + voltinism
 
-#visualizing interacting effects?
-#making certain calls: 
-  #Epargyreus clarus: 2.5 -> 2
-  #Papilio glaucus: 2.5 -> 2
-  #Vanessa virginiensis: 3.5 ->3
-  #alternatively: remove these species?
-  #alternatively: voltinism of 4? 
-
 #visulizing distribution of slopes by factors
 library(ggplot2)
 dat2 <- dat
+#run this if you wish to remove common checkered skipper, sachem
+dat2<-dat2[dat2$species != "Pyrgus communis", ]  
+dat2<-dat2[dat2$species != "Atalopedes campestris", ]   
 #temp slope vs. voltinism boxplot
 dat2$voltinism <- as.factor(dat2$voltinism)
-voltplot<- ggplot(dat, aes(x=voltinism, y=temp.slope, group=voltinism)) + 
-                  geom_boxplot(outlier.colour="red", outlier.shape=8,
-                  outlier.size=4)+
-                  geom_dotplot(binaxis='y', stackdir='center', dotsize=1)+
-                  geom_jitter(shape=16, position=position_jitter(0.2))
+voltplot<- ggplot(dat2, aes(x=voltinism, y=temp.slope, group=voltinism)) + 
+                  geom_violin()+
+                  stat_summary(fun.data=mean_sdl, 
+                               geom="pointrange", color="red")+
+                  xlab("Voltinism") + 
+                  ylab("Earlydate vs. temperature slope")+
+                  theme_classic()
 voltplot
-  #common checkered skipper, sachem, gray hairstreak are outliers
 
 #temp slope vs. overwinter boxplot
 winterplot<- ggplot(dat, aes(x=overwinter, y=temp.slope)) + 
-  geom_boxplot(outlier.colour="red", outlier.shape=8,
-               outlier.size=4)+
-  geom_dotplot(binaxis='y', stackdir='center', dotsize=1)+
-  geom_jitter(shape=16, position=position_jitter(0.2))
+             geom_violin()+
+              stat_summary(fun.data=mean_sdl, 
+                           geom="pointrange", color="red")+
+              xlab("Overwintering stage") + 
+              ylab("Earlydate vs. temperature slope")+
+              theme_classic()
 winterplot
 
+#year slope plots
+#run this to remove swarthy skipper and great spangled fritillary
+dat3<-dat2[dat2$species != "Nastra lherminier", ]  
+dat3<-dat3[dat3$species != "Speyeria cybele", ]  
 #year slope vs. voltinism boxplot
-voltplot2<- ggplot(dat, aes(x=voltinism, y=year.slope, group=voltinism)) + 
-  geom_boxplot(outlier.colour="red", outlier.shape=8,
-               outlier.size=4)+
-  geom_dotplot(binaxis='y', stackdir='center', dotsize=1)+
-  geom_jitter(shape=16, position=position_jitter(0.2))
+voltplot2<- ggplot(dat3, aes(x=voltinism, y=year.slope)) + 
+                  geom_violin()+
+                  stat_summary(fun.data=mean_sdl, 
+                                geom="pointrange", color="red")+
+                  xlab("Voltinism") + 
+                  ylab("Earlydate vs. year slope")+
+                  theme_classic()
 voltplot2
-  #swarthy skipper, great spangled fritillaries are outliers
 
 #year slope vs. overwinter boxplot
-winterplot2<- ggplot(dat, aes(x=overwinter, y=year.slope)) + 
-  geom_boxplot(outlier.colour="red", outlier.shape=8,
-               outlier.size=4)+
-  geom_dotplot(binaxis='y', stackdir='center', dotsize=1)+
-  geom_jitter(shape=16, position=position_jitter(0.2))
+winterplot2<- ggplot(dat3, aes(x=overwinter, y=year.slope)) + 
+                     geom_violin()+
+                     stat_summary(fun.data=mean_sdl, 
+                     geom="pointrange", color="red")+
+                     xlab("Overwinter") + 
+                     ylab("Earlydate vs. year slope")+
+                     theme_classic()
 winterplot2
 
 #Interaction plot
@@ -125,7 +130,7 @@ interactionplot
 #F subscript df, p=whatever
 #don't need to report non-significance w/ values (didn't have an effect)
 
-plot.design(earlydate~year+voltinism+diettype+dietbreadth+overwinter,data=dat)
+plot.design(earlydate~year+voltinism+overwinter,data=dat)
 
 #in the anova of the full mod,
 #year (p<0.0001), temp (p<0.0001), voltinism (p=0.0024), diettype (p=0.0140), year:voltinism (P=0.0127) were significant
