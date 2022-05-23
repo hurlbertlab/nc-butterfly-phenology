@@ -38,12 +38,25 @@ dat2<-merge(traits, dat, by.x=c("Cname"), by.y=c("Cname"), all.x = F, all.y = F)
 dat3<-dat2 %>%
   select("species", "abundance", "number", "year", "jd") 
 
+#Lump Ceratina and Erynnis under the genus level
+#replace both "Celastrina ladon" and "Celastrina neglecta" with "Celastrina spp"
+dat3 <- dat3 %>% replace(.=="Celastrina ladon", "Celastrina spp")
+dat3 <- dat3 %>% replace(.=="Celastrina neglecta", "Celastrina spp")
+#replace both "juvenalis" and "horatius" with "spp" 
+dat3 <- dat3 %>% replace(.=="Erynnis juvenalis", "Erynnis spp")
+dat3 <- dat3 %>% replace(.=="Erynnis horatius", "Erynnis spp")
+
 #Monarch is migratory, while ocola and red admiral are partly migratory
 #remove those here, if desired
 dat3<-dat3[dat3$species != "Danaus plexippus", ] 
 dat3<-dat3[dat3$species != "Panoquina ocola", ]   
 dat3<-dat3[dat3$species != "Vanessa atalanta", ] 
 dat3<-dat3[dat3$species != "Junonia coenia", ]
+
+#Chlosyne nycteis and Nastra lherminier have fewer than 10 "good" years
+#remove them here
+dat3<-dat3[dat3$species != "Chlosyne nycteis", ] 
+dat3<-dat3[dat3$species != "Nastra lherminier", ]
 
 #filter out years that have less than 10 unique dates
 goodspeciesyears <- dat3 %>% 
@@ -86,7 +99,7 @@ for (s in species){
     for (y in year){
       b=subset(goodspeciesyears, year==y & species==s)
       mindate<-dateXpct.ind(b,0.10)
-      datoutput = data.frame(species = s, year = y, jd=mindate)
+      datoutput = data.frame(species = s, year = y, jd=mindate, sdjd = sddat)
       output=rbind(output,datoutput)
   }
 }
@@ -188,6 +201,7 @@ dev.off()
 
 #this is me checking that each species has at least 10 "good" years (at least 10 distinct dates)
 speciessummary<-aggregate(x = alldat4$abundance, by = list(alldat4$speciesyear), FUN = sum)
-#subset species/year pairs with a minimum of 30 observations
+#subset species/year pairs with a minimum of 10 observations
 speciessummary2 <- speciessummary[ which(speciessummary$x >= 10), ]
+
 

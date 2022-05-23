@@ -44,6 +44,10 @@ recorddat<-recorddat %>%
 #merge record dat with temp dat
 dat2<-merge(recorddat, tempdat, by.x=c("year"), by.y=c("year"), all.x = F, all.y = F)
 
+#save this dat
+write.csv(dat2, file="data/record.temp.summary.csv")
+
+
 #########################################################################################3
 #line chart with 2 y-axes
 
@@ -69,7 +73,7 @@ ggplot(dat2, aes(x=year)) +
     # Features of the first axis
     name = "Temperature (°C)", limits = c(0,20),
     # Add a second axis and specify its features
-    sec.axis = sec_axis(~.*coeff, name="Number of Records")
+    sec.axis = sec_axis(~.*coeff, name="Number of Records"),
   )+
   xlab("Year")+
   theme_classic()

@@ -1,12 +1,14 @@
 #load early date vs. temp and year data
 library(plyr)
+library(dplyr)
+library(tidyr)
 tempdat<-read.csv("data/year.temp.earlydate.uniquedate.triangle.cooksd.4.months.csv")
 
 #add species traits in
 variables<-read.csv("data/species traits list.csv")
 dat<-merge(variables,tempdat, by.x=c("species"),by.y=c('species'), all.x = T, all.y = T)
 
-#drop migratory of partially migratory spp (if not already removed)
+#drop migratory or partially migratory spp (if not already removed)
 dat<-dat[dat$migratory != "yes", ]   
 
 #model creation
@@ -16,19 +18,19 @@ library (car) #for Anova function
 
 #trying out simple models. for fun. 
 #year
-mod1 <- lm(year.slope~overwinter, data=dat, weights=(1/dat$se.year.earlydate))
+mod1 <- lm(year.slope~overwinter, data=dat, weights=(1/dat$sd.year.earlydate))
 summary(mod1)
-mod2 <- lm(year.slope~voltinism, data=dat, weights=(1/dat$se.year.earlydate))
+mod2 <- lm(year.slope~voltinism, data=dat, weights=(1/dat$sd.year.earlydate))
 summary(mod2)
 #temp
-mod3 <- lm(temp.slope~overwinter, data=dat, weights=(1/dat$se.temp.earlydate))
+mod3 <- lm(temp.slope~overwinter, data=dat, weights=(1/dat$sd.temp.earlydate))
 summary(mod3)
-mod4 <- lm(temp.slope~voltinism, data=dat, weights=(1/dat$se.temp.earlydate))
+mod4 <- lm(temp.slope~voltinism, data=dat, weights=(1/dat$sd.temp.earlydate))
 summary(mod4)
 #multiple
-mod5 <- lm(year.slope  ~ overwinter*voltinism, data=dat , weights=(1/dat$se.temp.earlydate))
+mod5 <- lm(year.slope  ~ overwinter*voltinism, data=dat , weights=(1/dat$sd.temp.earlydate))
 summary(mod5)
-mod6 <- lm(temp.slope  ~ overwinter*voltinism, data=dat , weights=(1/dat$se.temp.earlydate))
+mod6 <- lm(temp.slope  ~ overwinter*voltinism, data=dat , weights=(1/dat$sd.temp.earlydate))
 summary(mod6)
 
 #model comparison
@@ -41,19 +43,19 @@ anova(mod4, mod6) #temp, overwinter vs overwinter + voltinism
   #the earlier in the year you are, the more sensitive your response
   #interaction of earlydate with voltinism 
 #year
-mod7 <- lm(year.slope~voltinism*mean.year.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
+mod7 <- lm(year.slope~voltinism*mean.year.earlydate, data=dat, weights=(1/dat$sd.year.earlydate))
 summary(mod7)
-mod8 <- lm(year.slope~overwinter*mean.year.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
+mod8 <- lm(year.slope~overwinter*mean.year.earlydate, data=dat, weights=(1/dat$sd.year.earlydate))
 summary(mod8)
 #temp
-mod9 <- lm(temp.slope~voltinism*mean.temp.earlydate, data=dat, weights=(1/dat$se.temp.earlydate))
+mod9 <- lm(temp.slope~voltinism*mean.temp.earlydate, data=dat, weights=(1/dat$sd.temp.earlydate))
 summary(mod9) #significant one
-mod10 <- lm(temp.slope~overwinter*mean.temp.earlydate, data=dat, weights=(1/dat$se.year.earlydate))
+mod10 <- lm(temp.slope~overwinter*mean.temp.earlydate, data=dat, weights=(1/dat$sd.year.earlydate))
 summary(mod10)
 #interactions
-mod11 <- lm(year.slope~voltinism*mean.year.earlydate+overwinter, data=dat, weights=(1/dat$se.temp.earlydate))
+mod11 <- lm(year.slope~voltinism*mean.year.earlydate+overwinter, data=dat, weights=(1/dat$sd.temp.earlydate))
 summary(mod11)
-mod12 <- lm(temp.slope~voltinism*mean.temp.earlydate+overwinter, data=dat, weights=(1/dat$se.temp.earlydate))
+mod12 <- lm(temp.slope~voltinism*mean.temp.earlydate+overwinter, data=dat, weights=(1/dat$sd.temp.earlydate))
 summary(mod12) #significant
 
 #model comparison
@@ -63,9 +65,11 @@ anova(mod9, mod12) #temp, overwinter vs overwinter + voltinism
 #visulizing distribution of slopes by factors
 library(ggplot2)
 dat2 <- dat
-#temp slope vs. voltinism boxplot
+#temp slope vs. voltinism violin plot
 dat2$voltinism <- as.factor(dat2$voltinism)
-voltplot<- ggplot(dat2, aes(x=voltinism, y=temp.slope, group=voltinism)) + 
+dat3<-dat2[!(dat2$voltinism == 3.5 | dat2$voltinism == 5),] #use this version of the dataset
+#if you want to drop the one 3.5 and 5 voltinism species
+voltplot<- ggplot(dat3, aes(x=voltinism, y=temp.slope, group=voltinism)) + 
                   geom_violin()+
                   stat_summary(fun.data=mean_sdl, 
                                geom="pointrange", color="red")+
@@ -86,7 +90,7 @@ winterplot
 
 #year slope plots
 #year slope vs. voltinism boxplot
-voltplot2<- ggplot(dat2, aes(x=voltinism, y=year.slope)) + 
+voltplot2<- ggplot(dat3, aes(x=voltinism, y=year.slope)) + 
                   geom_violin()+
                   stat_summary(fun.data=mean_sdl, 
                                 geom="pointrange", color="red")+

@@ -68,44 +68,6 @@ for (s in species) {
 }
 dev.off()
 
-
-
-#############################################################################################
-#subsetting by an arbitrary start date (I'm saying july 1, approx. 182)
-#julian vs. year
-pdf("julian.year.4months.static.unique.date.july1.pdf",width=10, height=8)
-par(mfrow=c(2,3))
-
-for (s in species) {
-  df=alldat[alldat$species==s,]
-  df2 <- df[(df$jd < 182) , ]
-  lm.sub=lm(df2$jd~df2$year)
-  plot(df2$jd~df2$year, xlab='year', ylab='Early Date (julian)', main=paste(s))
-  abline(lm(df2$jd~df2$year))
-  rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
-  pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
-  legend("topright", bty="n", legend=c(rsquared,pvalue))
-}
-dev.off()
-
-#############################################################################################
-#subsetting by an arbitrary start date (I'm saying july 1, approx. 182)
-#julian vs. temp
-pdf("julian.temp.4months.static.unique.date.july1.pdf",width=10, height=8)
-par(mfrow=c(2,3))
-
-for (s in species) {
-  df=alldat[alldat$species==s,]
-  df2 <- df[(df$jd < 182) , ]
-  lm.sub=lm(df2$jd~df2$temp)
-  plot(df2$jd~df2$temp, xlab='temp', ylab='Early Date (julian)', main=paste(s))
-  abline(lm(df2$jd~df2$temp))
-  rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
-  pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
-  legend("topright", bty="n", legend=c(rsquared,pvalue))
-}
-dev.off()
-
 ###################################################################################
 
 #generate a dataframe of species,slope,r-squared and p-value
@@ -139,20 +101,24 @@ for (s in species) {
     lm.sub_screen.year = lm(df_screen.year$jd~df_screen.year$year)
     mean.year.earlydate = mean(df_screen.year$jd)
     se.year.earlydate = sd(df_screen.year$jd)/sqrt(nrow(df_screen.year))
+    sd.year.earlydate = sd(df_screen.year$jd)
   } else {
     lm.sub_screen.year = lm(df$jd~df$year)
     mean.year.earlydate = mean(df$jd)
     se.year.earlydate = sd(df$jd)/sqrt(nrow(df))
+    sd.year.earlydate = sd(df$jd)
   }
   if (length_influential.temp >= 1) {
     df_screen.temp <- df[-influential.temp, ]
     lm.sub_screen.temp = lm(df_screen.temp$jd~df_screen.temp$temp)
     mean.temp.earlydate = mean(df_screen.temp$jd)
     se.temp.earlydate = sd(df_screen.temp$jd)/sqrt(nrow(df_screen.temp))
+    sd.temp.earlydate = sd(df_screen.temp$jd)
   } else {
     lm.sub_screen.temp = lm(df$jd~df$temp)
     mean.temp.earlydate = mean(df$jd)
     se.temp.earlydate = sd(df$jd)/sqrt(nrow(df))
+    sd.temp.earlydate = sd(df$jd)
   }
   year.slope<-summary(lm.sub_screen.year)$coefficients[2,1] 
   year.rsquared<-summary(lm.sub_screen.year)$r.squared
@@ -169,8 +135,10 @@ for (s in species) {
                           temp.pvalue = temp.pvalue,
                           mean.year.earlydate = mean.year.earlydate,
                           se.year.earlydate = se.year.earlydate,
+                          sd.year.earlydate = sd.year.earlydate,
                           mean.temp.earlydate = mean.temp.earlydate,
-                          se.temp.earlydate = se.temp.earlydate)
+                          se.temp.earlydate = se.temp.earlydate,
+                          sd.temp.earlydate = sd.temp.earlydate)
   output<-rbind(output,tempoutput)
 }
 
