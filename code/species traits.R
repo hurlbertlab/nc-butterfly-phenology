@@ -11,6 +11,9 @@ dat<-merge(variables,tempdat, by.x=c("species"),by.y=c('species'), all.x = T, al
 #drop migratory or partially migratory spp (if not already removed)
 dat<-dat[dat$migratory != "yes", ]   
 
+#create a csv with the values for just the species of interest, if desired
+write.csv(dat, "data/temp.earlydate.uniquedate.triangle.static.4.months.focalspecies.csv")
+
 #model creation
 library(lme4) #for constructing mixed models
 library(lmerTest) #for displaying p-values
@@ -45,18 +48,20 @@ anova(mod4, mod6) #temp, overwinter vs overwinter + voltinism
 #year
 mod7 <- lm(year.slope~voltinism*mean.year.earlydate, data=dat, weights=(1/dat$sd.year.earlydate))
 summary(mod7)
+Anova(mod7)
 mod8 <- lm(year.slope~overwinter*mean.year.earlydate, data=dat, weights=(1/dat$sd.year.earlydate))
 summary(mod8)
 #temp
 mod9 <- lm(temp.slope~voltinism*mean.temp.earlydate, data=dat, weights=(1/dat$sd.temp.earlydate))
 summary(mod9) #significant one
+Anova(mod9)
 mod10 <- lm(temp.slope~overwinter*mean.temp.earlydate, data=dat, weights=(1/dat$sd.year.earlydate))
 summary(mod10)
 #interactions
 mod11 <- lm(year.slope~voltinism*mean.year.earlydate+overwinter, data=dat, weights=(1/dat$sd.temp.earlydate))
 summary(mod11)
 mod12 <- lm(temp.slope~voltinism*mean.temp.earlydate+overwinter, data=dat, weights=(1/dat$sd.temp.earlydate))
-summary(mod12) #significant
+summary(mod12) 
 
 #model comparison
 anova(mod7, mod11) #year, overwinter vs overwinter + voltinism
@@ -75,7 +80,8 @@ voltplot<- ggplot(dat3, aes(x=voltinism, y=temp.slope, group=voltinism)) +
                                geom="pointrange", color="red")+
                   xlab("Voltinism") + 
                   ylab("Earlydate vs. temperature slope")+
-                  theme_classic()
+                  geom_hline(yintercept=0, linetype=2)+
+  theme_classic(base_size = 13.6)
 voltplot
 
 #temp slope vs. overwinter boxplot
@@ -85,7 +91,8 @@ winterplot<- ggplot(dat2, aes(x=overwinter, y=temp.slope)) +
                            geom="pointrange", color="red")+
               xlab("Overwintering stage") + 
               ylab("Earlydate vs. temperature slope")+
-              theme_classic()
+              geom_hline(yintercept=0, linetype=2)+
+              theme_classic(base_size = 13.2)
 winterplot
 
 #year slope plots
@@ -96,7 +103,8 @@ voltplot2<- ggplot(dat3, aes(x=voltinism, y=year.slope)) +
                                 geom="pointrange", color="red")+
                   xlab("Voltinism") + 
                   ylab("Earlydate vs. year slope")+
-                  theme_classic()
+                  geom_hline(yintercept=0, linetype=2)+
+                  theme_classic(base_size = 13.2)
 voltplot2
 
 #year slope vs. overwinter boxplot
@@ -106,12 +114,42 @@ winterplot2<- ggplot(dat2, aes(x=overwinter, y=year.slope)) +
                      geom="pointrange", color="red")+
                      xlab("Overwinter") + 
                      ylab("Earlydate vs. year slope")+
-                     theme_classic()
+                     geom_hline(yintercept=0, linetype=2)+
+              theme_classic(base_size = 13.2)
 winterplot2
+
+#overall summary plot (requires reshaping the data)
+tempslopes<-dat2[c("temp.slope")] #pull the temp slopes
+tempslopes$type <- "temp" #add a column with slope type
+tempslopes<-rename(tempslopes, "slope" = "temp.slope") #rename slope column for rbinding
+yearslopes<-dat2[c("year.slope")] #pull the year slopes
+yearslopes$type <- "year" #add a column with slope type
+yearslopes<-rename(yearslopes, "slope" = "year.slope") #rename slope column for rbinding
+slopesum<-rbind(yearslopes,tempslopes) #you can bind them if you want them on the same graph
+#create graph for temp
+tempplot<- ggplot(tempslopes, aes(x=type, y=slope)) + 
+  geom_violin()+
+  stat_summary(fun.data=mean_sdl, 
+               geom="pointrange", color="red")+
+  xlab("Dependent variable") + 
+  ylab("Earlydate vs. temperature slope")+
+  geom_hline(yintercept=0, linetype=2)+
+  theme_classic(base_size = 13.6)
+tempplot
+#create graph for year
+yearplot<- ggplot(yearslopes, aes(x=type, y=slope)) + 
+  geom_violin()+
+  stat_summary(fun.data=mean_sdl, 
+               geom="pointrange", color="red")+
+  xlab("Dependent variable") + 
+  ylab("Earlydate vs. year slope")+
+  geom_hline(yintercept=0, linetype=2)+
+  theme_classic(base_size = 13.6)
+yearplot
 
 #Interaction plot
 interactionplot <- ggplot(dat2, aes(x = mean.temp.earlydate, y = temp.slope, color = voltinism)) +
-              theme_bw() +
+              theme_classic() +
               labs(x = "mean earlydate", y = "earlydate v. temp slope", color = "voltinism (factor)")+
               geom_point(size = 2, aes(shape=overwinter)) +
               geom_smooth(method = "lm")

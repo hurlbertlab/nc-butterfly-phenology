@@ -70,6 +70,18 @@ datehist<-ggplot(dat3, aes(x=year)) +
   geom_histogram(color="black", fill="white")
 datehist
 
+#as an example, we're gonna pull a butterfly to represent dist. of resources
+RSS <- dat3[ which(dat3$species== 'Limenitis arthemis astyanax'), ]
+RSS2016 <- RSS[ which(RSS$year == 2016), ]
+RSShist<-ggplot(RSS2016, aes(x=jd)) + 
+  geom_histogram(color="black", fill="white")+
+  geom_vline(xintercept = 128, linetype=2, 
+             color = "red")+
+  xlab("Julian date")+
+  ylab("Number of observation events")+
+  theme_classic(base_size = 15)
+RSShist
+
 #-------------------------------------------------------
 
 # First need to create a vector of dates for individuals
