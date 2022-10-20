@@ -62,10 +62,15 @@ mod11 <- lm(year.slope~voltinism*mean.year.earlydate+overwinter, data=dat, weigh
 summary(mod11)
 mod12 <- lm(temp.slope~voltinism*mean.temp.earlydate+overwinter, data=dat, weights=(1/dat$sd.temp.earlydate))
 summary(mod12) 
+#voltinism on its own
+mod13 <- lm(temp.slope~voltinism, data=dat, weights=(1/dat$sd.temp.earlydate))
+summary(mod13) #significant one
 
 #model comparison
 anova(mod7, mod11) #year, overwinter vs overwinter + voltinism
 anova(mod9, mod12) #temp, overwinter vs overwinter + voltinism
+anova(mod13, mod9) 
+
 
 #visulizing distribution of slopes by factors
 library(ggplot2)
@@ -74,26 +79,49 @@ dat2 <- dat
 dat2$voltinism <- as.factor(dat2$voltinism)
 dat3<-dat2[!(dat2$voltinism == 3.5 | dat2$voltinism == 5),] #use this version of the dataset
 #if you want to drop the one 3.5 and 5 voltinism species
-voltplot<- ggplot(dat3, aes(x=voltinism, y=temp.slope, group=voltinism)) + 
+voltplot<- ggplot(dat3, aes(x=voltinism, y=temp.slope, fill=voltinism)) + 
                   geom_violin()+
-                  stat_summary(fun.data=mean_sdl, 
-                               geom="pointrange", color="red")+
                   xlab("Voltinism") + 
-                  ylab("Earlydate vs. temperature slope")+
-                  geom_hline(yintercept=0, linetype=2)+
-  theme_classic(base_size = 13.6)
+                  theme_classic(base_size = 18)+
+                  stat_summary(fun = "mean",
+                    geom = "crossbar", 
+                    width = 0.5,
+                    colour = "red")+
+                  theme(legend.position = "none",
+                         axis.title.y = element_blank())+
+                  scale_fill_grey()+
+                  geom_hline(yintercept=0,linetype=2)
 voltplot
 
 #temp slope vs. overwinter boxplot
-winterplot<- ggplot(dat2, aes(x=overwinter, y=temp.slope)) + 
+#need to reorder overwintering treatment in an order that makes sense
+dat2$overwinter <- factor(dat2$overwinter, levels=c("larvae", "pupae", "adults"))
+winterplot<- ggplot(dat2, aes(x=overwinter, y=temp.slope, fill = overwinter)) + 
              geom_violin()+
-              stat_summary(fun.data=mean_sdl, 
-                           geom="pointrange", color="red")+
               xlab("Overwintering stage") + 
-              ylab("Earlydate vs. temperature slope")+
-              geom_hline(yintercept=0, linetype=2)+
-              theme_classic(base_size = 13.2)
+              ylab("Phenological sensitivity")+
+              theme_classic(base_size = 18)+
+              stat_summary(fun = "mean",
+                geom = "crossbar", 
+                width = 0.5,
+                colour = "red")+
+              theme(legend.position = "none")+
+              scale_fill_grey()+
+              geom_hline(yintercept=0,linetype=2)
 winterplot
+
+earlydateplot<- ggplot(dat2, aes(x=overwinter, y=mean.temp.earlydate, fill = overwinter)) + 
+  geom_violin()+
+  xlab("Overwintering stage") + 
+  ylab("Mean onset date")+
+  theme_classic(base_size = 18)+
+  stat_summary(fun = "mean",
+               geom = "crossbar", 
+               width = 0.5,
+               colour = "red")+
+  theme(legend.position = "none")+
+  scale_fill_grey()
+earlydateplot
 
 #year slope plots
 #year slope vs. voltinism boxplot
@@ -121,21 +149,37 @@ winterplot2
 #overall summary plot (requires reshaping the data)
 tempslopes<-dat2[c("temp.slope")] #pull the temp slopes
 tempslopes$type <- "temp" #add a column with slope type
-tempslopes<-rename(tempslopes, "slope" = "temp.slope") #rename slope column for rbinding
+tempslopes<-rename(tempslopes, "temp.slope"="slope") #rename slope column for rbinding
 yearslopes<-dat2[c("year.slope")] #pull the year slopes
 yearslopes$type <- "year" #add a column with slope type
 yearslopes<-rename(yearslopes, "slope" = "year.slope") #rename slope column for rbinding
 slopesum<-rbind(yearslopes,tempslopes) #you can bind them if you want them on the same graph
 #create graph for temp
-tempplot<- ggplot(tempslopes, aes(x=type, y=slope)) + 
-  geom_violin()+
-  stat_summary(fun.data=mean_sdl, 
-               geom="pointrange", color="red")+
-  xlab("Dependent variable") + 
-  ylab("Earlydate vs. temperature slope")+
-  geom_hline(yintercept=0, linetype=2)+
-  theme_classic(base_size = 13.6)
+tempplot<- ggplot(tempslopes, aes(x=type, y=temp.slope)) + 
+  geom_violin(fill="light grey")+
+  xlab("All species") + 
+  ylab("Phenological sensitivity")+
+  stat_summary(fun = "mean",
+               geom = "crossbar", 
+               width = 0.5,
+               colour = "red")+
+  theme_classic(base_size = 18)+
+  theme(legend.position = "none",
+        axis.text.x = element_blank())+
+  geom_hline(yintercept=0,linetype=2)
 tempplot
+
+#create cowplot
+library(cowplot)
+comboplot2<-plot_grid(tempplot, voltplot, winterplot,earlydateplot,
+                     nrow=2,
+                     ncol=2,
+                     labels = c('A', 'B', 'C', 'D'),
+                     label_size = 18, 
+                     align = "hv",
+                     vjust = 1)
+save_plot("fig2.png",comboplot2, nrow = 2, ncol = 2)
+
 #create graph for year
 yearplot<- ggplot(yearslopes, aes(x=type, y=slope)) + 
   geom_violin()+
@@ -150,10 +194,23 @@ yearplot
 #Interaction plot
 interactionplot <- ggplot(dat2, aes(x = mean.temp.earlydate, y = temp.slope, color = voltinism)) +
               theme_classic() +
-              labs(x = "mean earlydate", y = "earlydate v. temp slope", color = "voltinism (factor)")+
-              geom_point(size = 2, aes(shape=overwinter)) +
-              geom_smooth(method = "lm")
+              labs(x = "Mean onset date", y = "Phenological sensitivity", color = "voltinism")+
+              geom_point(size = 3, aes(shape=overwinter)) +
+              geom_smooth(method = "lm", aes(group = voltinism), se = F)+
+  theme_classic(base_size = 18)
 interactionplot
+#dimensions = 600 x 420
+
+#plot without interactions for supp image
+interactionplot2 <- ggplot(dat2, aes(x = mean.temp.earlydate, y = temp.slope)) +
+  theme_classic(base_size = 18) +
+  labs(x = "Mean onset date", y = "Phenological sensitivity")+
+  geom_point(color = 'black', size=4) +
+  geom_point(data=dat2, aes( x=130.11111, y=-2.7488826,), color = 'darkturquoise', size = 6, shape=16) +
+  geom_point(data=dat2, aes( x=78.61905, y=-0.4542952,), color = 'dark orange', size = 6, shape=16) +
+  geom_smooth(method = "lm", se=F, color = 'dark grey', size=2)
+interactionplot2
+#dimensions = 600 x 420
 
 
 #example: year:diettype: response different for diff diettypes for diff years

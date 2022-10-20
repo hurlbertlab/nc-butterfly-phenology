@@ -72,15 +72,27 @@ datehist
 
 #as an example, we're gonna pull a butterfly to represent dist. of resources
 RSS <- dat3[ which(dat3$species== 'Limenitis arthemis astyanax'), ]
-RSS2016 <- RSS[ which(RSS$year == 2016), ]
-RSShist<-ggplot(RSS2016, aes(x=jd)) + 
+RSS1996 <- RSS[ which(RSS$year == 1996), ]
+RSShist<-ggplot(RSS1996, aes(x=jd)) + 
   geom_histogram(color="black", fill="white")+
-  geom_vline(xintercept = 128, linetype=2, 
-             color = "red")+
+  geom_vline(xintercept = 140, linetype=2, size=2,
+             color = "darkturquoise")+
   xlab("Julian date")+
-  ylab("Number of observation events")+
-  theme_classic(base_size = 15)
-RSShist
+  ylab("Number of observations")+
+  theme_classic(base_size = 18)
+RSShist #save as width = 410 and height = 400
+
+#as an example, we're gonna pull a butterfly to represent dist. of resources
+snout <- dat3[ which(dat3$species== 'Libytheana carinenta'), ]
+snout2015 <- snout[ which(snout$year == 2015), ]
+snouthist<-ggplot(snout2015, aes(x=jd)) + 
+  geom_histogram(color="black", fill="white")+
+  geom_vline(xintercept = 136, linetype=2, size=2,
+             color = "darkorange")+
+  xlab("Julian date")+
+  ylab("Number of observations")+
+  theme_classic(base_size = 18)
+snouthist #save as width = 410 and height = 400
 
 #-------------------------------------------------------
 

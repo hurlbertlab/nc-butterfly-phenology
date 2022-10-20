@@ -77,3 +77,14 @@ ggplot(dat2, aes(x=year)) +
   )+
   xlab("Year")+
   theme_classic()
+
+#cowplot info
+library(cowplot)
+comboplot<-plot_grid(snouthist, RSShist, snoutplot, RSSplot, interactionplot2,
+                     nrow=3,
+                     ncol=2,
+                     labels = c('C', 'D', 'E', 'F', 'G'),
+                     label_size = 15, 
+                     align = "hv",
+                     vjust=1)
+save_plot("fig1.png",comboplot, nrow = 3, ncol = 2)

@@ -10,9 +10,10 @@ alldat<-read.csv("data/temp.earlydate.uniquedate.triangle.static.4.months.csv")
 #for loop excluding outliers using cooks D
 #creating for loop (First I'll just try to get this to read the plots and put them in a pdf)
 species<-unique(alldat$species)
-pdf("julian.temp.4months.static.unique.date.cooksd.pdf",width=10, height=8)
+pdf("julian.temp.4months.static.unique.date.cooksd2.pdf",width=10, height=8)
 par(mfrow=c(2,3))
 
+#base r
 for (s in species) {
   df=alldat[alldat$species==s,]
   lm.sub=lm(df$jd~df$temp)
@@ -21,15 +22,15 @@ for (s in species) {
   length_influential <- length(influential) 
   if (length_influential >= 1) {
     df_screen <- df[-influential, ]
-    plot(df_screen$jd~df_screen$temp, xlab='temperature', ylab='Early Date (julian)', main=paste(s))
-    lm.sub_screen = lm(df_screen$jd~df_screen$temp, xlab="temperature", ylab = "julian")
+    plot(df_screen$jd~df_screen$temp, xlab='Temperature (°C)', ylab='Onset date', main=paste(s))
+    lm.sub_screen = lm(df_screen$jd~df_screen$temp, xlab="Temperature (°C)", ylab = "Onset date")
     abline(lm(df_screen$jd~df_screen$temp))
     rsquared<-paste("R2=",format(summary(lm.sub_screen)$r.squared, digits=4))
     pvalue<-paste("p=", format(summary(lm.sub_screen)$coefficients[2,4]), digits=4)
     slope<-paste("slope=", format(summary(lm.sub_screen)$coefficients[2,1] ))
   } else {
-    plot(df$jd~df$temp, xlab='temperature', ylab='Early Date (julian)', main=paste(s))
-    lm.sub = lm(df$jd~df$temp, xlab="temperature", ylab = "julian")
+    plot(df$jd~df$temp, xlab='Temperature (°C)', ylab='Onset date', main=paste(s))
+    lm.sub = lm(df$jd~df$temp, xlab="Temperature (°C)", ylab = "Onset date")
     abline(lm(df$jd~df$temp))
     rsquared<-paste("R2=",format(summary(lm.sub)$r.squared, digits=4))
     pvalue<-paste("p=", format(summary(lm.sub)$coefficients[2,4]), digits=4)
@@ -38,6 +39,87 @@ for (s in species) {
   legend("topright", bty="n", legend=c(rsquared,pvalue,slope))
 }
 dev.off()
+
+#ggplot
+for (s in species) {
+  df=alldat[alldat$species==s,]
+  lm.sub=lm(df$jd~df$temp)
+  cooksD <- cooks.distance(lm.sub)
+  influential <- as.numeric(names(cooksD)[(cooksD > (4/nrow(df)))])
+  length_influential <- length(influential) 
+  if (length_influential >= 1) {
+    df_screen <- df[-influential, ]
+    df_outlier<- df[influential, ]
+    print(ggplot(df_screen, aes(x=temp, y=jd))+
+      geom_point()+
+      labs(x = 'Temperature (°C)', y = 'Onset date')+
+      geom_smooth(method="lm", se=F, color = "grey")+
+        annotate("text",  x=Inf, y = Inf, label = paste("R2=",format(summary(lm.sub)$r.squared, digits=4)), vjust=1, hjust=1)+
+        annotate("text",  x=Inf, y = Inf, label = paste("p=", format(summary(lm.sub)$coefficients[2,4])), vjust=2.2, hjust=1)+
+        annotate("text",  x=Inf, y = Inf, label = paste("slope=", format(summary(lm.sub)$coefficients[2,1] )), vjust=3.4, hjust=1)+
+      theme_classic(base_size=16)+
+        geom_point(data = df_outlier, aes(x = temp, y = jd), color = "red")+
+        geom_smooth(data = df, aes(x = temp, y = jd), color = "red",linetype="dashed", method="lm",se=FALSE)+
+      ggtitle(paste(s)))
+  } else {
+    print(ggplot(df, aes(x=temp, y=jd))+
+      geom_point()+
+      labs(x = 'Temperature (°C)', y = 'Onset date')+
+      geom_smooth(method="lm", se=F, color = "grey")+
+      theme_classic(base_size=16)+
+      annotate("text",  x=Inf, y = Inf, label = paste("R2=",format(summary(lm.sub)$r.squared, digits=4)), vjust=1, hjust=1)+
+        annotate("text",  x=Inf, y = Inf, label = paste("p=", format(summary(lm.sub)$coefficients[2,4])), vjust=2.2, hjust=1)+
+        annotate("text",  x=Inf, y = Inf, label = paste("slope=", format(summary(lm.sub)$coefficients[2,1] )), vjust=3.4, hjust=1)+
+      ggtitle(paste(s)))
+  }
+}
+dev.off()
+
+interactionplot2 <- ggplot(dat2, aes(x = mean.temp.earlydate, y = temp.slope)) +
+  theme_classic(base_size = 18) +
+  labs(x = "Mean onset date", y = "Phenological sensitivity")+
+  geom_point(color = 'black', size=4) +
+  geom_point(data=dat2, aes( x=130.11111, y=-2.7488826,), color = 'darkturquoise', size = 6, shape=16) +
+  geom_point(data=dat2, aes( x=78.61905, y=-0.4542952,), color = 'dark orange', size = 6, shape=16) +
+  geom_smooth(method = "lm", se=F, color = 'dark grey', size=2)
+interactionplot2
+
+#we're also going to pull out a couple earlydate versus temp examples for the supp.
+df=alldat[alldat$species=="Libytheana carinenta",]
+lm.sub=lm(df$jd~df$temp)
+cooksD <- cooks.distance(lm.sub)
+influential <- as.numeric(names(cooksD)[(cooksD > (4/nrow(df)))])
+df_screen <- df[-influential, ]
+#run this version to find the datapoint that needs highlighting
+snoutplot<-ggplot(df_screen,aes(temp, jd)) +
+  geom_point(color='black', size=4)+
+  geom_point(data=df_screen, aes(x=17.69877, y=136), color = 'dark orange', size = 6, shape=16) +
+  geom_smooth(method='lm', size=2,
+              color = "dark orange", se=F) +
+  xlab("Temperature (°C)")+
+  ylab("Onset date")+
+  theme_classic(base_size = 18)
+snoutplot
+#dimensions = 410 x 400
+
+#we're also going to pull out a second earlydate versus temp examples for the supp.
+df=alldat[alldat$species=="Limenitis arthemis astyanax",]
+lm.sub=lm(df$jd~df$temp)
+cooksD <- cooks.distance(lm.sub)
+influential <- as.numeric(names(cooksD)[(cooksD > (4/nrow(df)))])
+df_screen <- df[-influential, ]
+#run this version to find the datapoint that needs highlighting
+RSSplot<-ggplot(df_screen,aes(temp, jd)) +
+  geom_point(color='black', size=4)+
+  geom_point(data=df_screen, aes(x=16.51663, y=140), color = 'darkturquoise', size = 6, shape=16) +
+  geom_smooth(method='lm', size=2,
+              color = 'darkturquoise', se=F) +
+  xlab("Temperature (°C)")+
+  ylab("Onset date")+
+  theme_classic(base_size = 18)
+RSSplot
+#dimensions = 410 x 400
+
 
 #############################################################################################
 #an additional for loop for temp
